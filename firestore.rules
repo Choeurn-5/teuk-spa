@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Because your website uses a Next.js Server (via the Firebase Admin SDK) 
+    // to read and write all data, the actual web browser (client) does not 
+    // need any direct database access!
+    
+    // This makes your database 100% immune to client-side hacking or abuse.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

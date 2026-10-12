@@ -1,0 +1,12 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      // Anyone can view your gallery images and spa photos
+      allow read: if true;
+      
+      // Only the secure server (Admin SDK) can upload or delete photos
+      allow write: if false;
+    }
+  }
+}
