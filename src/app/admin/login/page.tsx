@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import { useRouter } from "next/navigation";
-import { Lock } from "lucide-react";
+import { Lock, Sparkles } from "lucide-react";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -95,6 +95,18 @@ export default function AdminLogin() {
               </button>
             </div>
           </form>
+
+          {/* Quick Passwordless Login Option */}
+          <div className="mt-6 pt-6 border-t border-mist/80 text-center">
+            <p className="text-xs text-ink/50 uppercase tracking-widest mb-3">Direct Admin Access</p>
+            <a
+              href="/admin/quick-login"
+              className="w-full inline-flex items-center justify-center py-2.5 px-4 border border-olive/30 rounded-full shadow-sm text-xs tracking-wider uppercase font-semibold text-olive bg-mist/30 hover:bg-olive hover:text-cream transition-all duration-200"
+            >
+              <Sparkles className="w-4 h-4 mr-2 text-gold" />
+              Instant Login Without Password
+            </a>
+          </div>
         </div>
       </div>
     </div>

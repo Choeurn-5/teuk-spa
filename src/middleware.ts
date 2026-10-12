@@ -6,11 +6,15 @@ export async function middleware(request: NextRequest) {
 
   // Protect /admin routes
   if (request.nextUrl.pathname.startsWith("/admin")) {
-    // Allow access to the login page
+    // Allow access to the login and quick-login page
     if (request.nextUrl.pathname === "/admin/login") {
       if (session) {
         return NextResponse.redirect(new URL("/admin", request.url));
       }
+      return NextResponse.next();
+    }
+
+    if (request.nextUrl.pathname === "/admin/quick-login") {
       return NextResponse.next();
     }
 
