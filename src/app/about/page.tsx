@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { PageHero } from "@/components/ui/PageHero";
 import { getSiteSettings } from "@/lib/content/getters";
+import { SanctuaryRoomsSection } from "@/components/spa/SanctuaryRoomsSection";
 
 /* ─────────────────────────────────────────────
    Teuk Massage & Spa — About Page
@@ -302,12 +303,17 @@ export default async function AboutPage() {
       </section>
 
       {/* ══════════════════════════════════════════
+          4.5 SANCTUARY ARCHITECTURE & PRIVATE SUITES
+      ══════════════════════════════════════════ */}
+      <SanctuaryRoomsSection variant="full" />
+
+      {/* ══════════════════════════════════════════
           5. FULL-WIDTH IMAGE BANNER
       ══════════════════════════════════════════ */}
       <section className="relative h-[55vh] min-h-[380px] overflow-hidden flex items-center justify-center">
         <Image
-          src="/images/defaults/massage_treatment.jpg"
-          alt="A therapist performing a Teuk signature treatment"
+          src="/images/rooms/0Y9A5022.jpg"
+          alt="Teuk Spa Private Teakwood Canopy Cabana Sanctuary"
           fill
           className="object-cover object-center"
           sizes="100vw"

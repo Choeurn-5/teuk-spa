@@ -7,6 +7,7 @@ import { BodyTensionConsultation } from "@/components/spa/BodyTensionConsultatio
 import { AromaOilBar } from "@/components/spa/AromaOilBar";
 import { SpaEtiquetteSection } from "@/components/spa/SpaEtiquetteSection";
 import { PhilosophyFadeGallery } from "@/components/ui/PhilosophyFadeGallery";
+import { SanctuaryRoomsSection } from "@/components/spa/SanctuaryRoomsSection";
 
 /* ─────────────────────────────────────────────
    Teuk Massage & Spa — Home Page
@@ -313,6 +314,10 @@ export default async function HomePage() {
       ══════════════════════════════════════════ */}
       <AromaOilBar />
 
+      {/* ══════════════════════════════════════════
+          4.8 SANCTUARY ROOMS & SUITES PREVIEW
+      ══════════════════════════════════════════ */}
+      <SanctuaryRoomsSection variant="preview" />
 
       {/* ══════════════════════════════════════════
           5. TESTIMONIAL PULL QUOTE
