@@ -52,7 +52,7 @@ export default async function HomePage() {
     settings.heroImage1 || "/images/home-page/home-hero-4.jpg",
     settings.heroImage2 || "/images/home-page/home-hero-1.jpg",
     settings.heroImage3 || "/images/home-page/home-hero-2.jpg",
-    settings.heroImage4 || "/images/defaults/herbal_compress.jpg",
+    settings.heroImage4 || "/images/home-page/home-hero-3.jpg",
   ];
   
   return (
