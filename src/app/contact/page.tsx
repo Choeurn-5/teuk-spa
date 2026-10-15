@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getSiteSettings } from '@/lib/content/getters'
 import { FadeIn } from '@/components/ui/FadeIn'
-import { PageHero } from '@/components/ui/PageHero'
+import { HeroSlider, HeroSlideItem } from '@/components/ui/HeroSlider'
 
 // ---------------------------------------------------------------------------
 // Icon components (inline SVG — no extra dependency)
@@ -100,25 +100,34 @@ export default async function ContactPage() {
   const email     = settings?.email     || 'hello@teukmassage.com'
   const waNumber  = phone.replace(/\D/g, '')
 
+  const contactSlides: HeroSlideItem[] = [
+    {
+      image: settings?.contactHero1 || "/images/contact-page/contact-hero-1.jpg",
+      heading: "Warm Khmer",
+      headingItalic: "Welcome & Care",
+      primaryCta: { label: "Book An Appointment", href: "/book" },
+    },
+    {
+      image: settings?.contactHero2 || "/images/contact-page/contact-hero-2.jpg",
+      heading: "Spa Concierge",
+      headingItalic: "& Dedicated Service",
+      primaryCta: { label: "WhatsApp Concierge", href: `https://wa.me/${waNumber}` },
+    },
+    {
+      image: settings?.contactHero3 || "/images/contact-page/contact-hero-3.jpg",
+      heading: "We Welcome You",
+      headingItalic: "In Central Siem Reap",
+      primaryCta: { label: "Reserve Sanctuary Time", href: "/book" },
+    },
+  ];
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FAF7F2', color: '#2C2C2C' }}>
 
       {/* ------------------------------------------------------------------ */}
-      {/* SECTION 1 — HERO — Generous Height Luxury Ken Burns               */}
+      {/* SECTION 1 — HERO — Full Bleed Luxury Contact Slider                */}
       {/* ------------------------------------------------------------------ */}
-      <PageHero
-        image="/images/defaults/spa_therapist.jpg"
-        badge="✦ Pakambor St, Siem Reap · Daily 10AM – 10PM"
-        scriptTag="Come Find Us"
-        title="Contact &"
-        titleAccent="Location"
-        description="Situated along Pakambor Street in central Siem Reap. Our concierge is available daily to welcome you or arrange custom wellness reservations."
-        heightClass="h-screen min-h-[750px] lg:min-h-[820px]"
-        actions={{
-          primary: { label: "Book an Appointment", href: "/book" },
-          secondary: { label: "WhatsApp Concierge", href: `https://wa.me/${waNumber}` },
-        }}
-      />
+      <HeroSlider slides={contactSlides} ariaLabel="Teuk Spa Contact & Location" />
 
       {/* ------------------------------------------------------------------ */}
       {/* SECTION 2 — MAIN GRID                                               */}
