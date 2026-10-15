@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getTreatments } from '@/lib/content/getters'
 import { FadeIn } from '@/components/ui/FadeIn'
-import { PageHero } from '@/components/ui/PageHero'
+import { HeroSlider, HeroSlideItem } from '@/components/ui/HeroSlider'
 import { getSiteSettings } from '@/lib/content/getters'
 import { TreatmentModalityMatrix } from '@/components/spa/TreatmentModalityMatrix'
 import { AromaOilBar } from '@/components/spa/AromaOilBar'
@@ -22,25 +22,40 @@ export default async function TreatmentsPage() {
   const treatments = await getTreatments()
   const settings = await getSiteSettings() || {}
 
+  const treatmentSlides: HeroSlideItem[] = [
+    {
+      image: settings.treatmentHero1 || "/images/treatment-page/treatment-hero-1.jpg",
+      heading: "Sacred Khmer",
+      headingItalic: "Healing Traditions",
+      primaryCta: { label: "Book Your Treatment", href: "/book" },
+    },
+    {
+      image: settings.treatmentHero2 || "/images/treatment-page/treatment-hero-2.jpg",
+      heading: "Restorative Bodywork",
+      headingItalic: "& Foot Reflexology",
+      primaryCta: { label: "Reserve A Session", href: "/book" },
+    },
+    {
+      image: settings.treatmentHero3 || "/images/treatment-page/treatment-hero-3.jpg",
+      heading: "Sanctuary Ambience",
+      headingItalic: "& Deep Tranquility",
+      primaryCta: { label: "Explore Rituals", href: "/book" },
+    },
+    {
+      image: settings.treatmentHero4 || "/images/treatment-page/treatment-hero-4.jpg",
+      heading: "Cambodian Botanical",
+      headingItalic: "Baths & Aromatherapy",
+      primaryCta: { label: "Book Bath Ritual", href: "/book" },
+    },
+  ];
+
   return (
     <div className="bg-[#FAF7F2] text-[#2C2C2C] font-sans overflow-x-hidden">
 
       {/* ══════════════════════════════════════════════════════
-          1. HERO — Generous Height Luxury Ken Burns
+          1. HERO — Full Bleed Luxury Treatment Slider
       ══════════════════════════════════════════════════════ */}
-      <PageHero
-        image={settings.heroImage2 || "/images/defaults/spa_herbs.jpg"}
-        badge="✦ Botanical Healing & Khmer Tradition"
-        scriptTag="The Art of Stillness"
-        title="Curated Healing"
-        titleAccent="Rituals"
-        description="Rooted in centuries of Khmer natural medicine, each treatment blends wild-crafted botanicals, pure essential oils, and intuitive pressure to awaken harmony."
-        heightClass="h-screen min-h-[750px] lg:min-h-[820px]"
-        actions={{
-          primary: { label: "Book a Treatment", href: "/book" },
-          secondary: { label: "View Packages", href: "/packages" },
-        }}
-      />
+      <HeroSlider slides={treatmentSlides} ariaLabel="Teuk Spa Treatment Rituals" />
 
       {/* ══════════════════════════════════════════════════════
           2. SECTION INTRO

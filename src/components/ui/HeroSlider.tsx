@@ -51,9 +51,10 @@ const DEFAULT_SLIDES: HeroSlideItem[] = [
 interface HeroSliderProps {
   images?: string[];
   slides?: HeroSlideItem[];
+  ariaLabel?: string;
 }
 
-export function HeroSlider({ images, slides: customSlides }: HeroSliderProps) {
+export function HeroSlider({ images, slides: customSlides, ariaLabel }: HeroSliderProps) {
   // Construct dynamic slide list combining custom slides or images with defaults
   const activeSlides: HeroSlideItem[] = customSlides || DEFAULT_SLIDES.map((slide, idx) => ({
     ...slide,
@@ -126,7 +127,7 @@ export function HeroSlider({ images, slides: customSlides }: HeroSliderProps) {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      aria-label="Teuk Spa Showcase"
+      aria-label={ariaLabel || "Teuk Spa Showcase"}
     >
       {/* ─── 1. FULL BLEED SLIDE BACKGROUNDS (NATURAL & VIBRANT) ─── */}
       <AnimatePresence initial={false}>
