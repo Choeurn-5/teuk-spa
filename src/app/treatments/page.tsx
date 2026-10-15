@@ -91,6 +91,7 @@ export default async function TreatmentsPage() {
                       src={imgSrc}
                       alt={treatment.name}
                       fill
+                      unoptimized={Boolean(imgSrc?.startsWith("data:"))}
                       className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />

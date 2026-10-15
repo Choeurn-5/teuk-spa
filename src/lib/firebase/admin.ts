@@ -35,14 +35,16 @@ if (getApps().length === 0) {
     if (parsedAccount) {
       adminApp = initializeApp({
         credential: cert(parsedAccount),
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "demo-project",
-    });
-  } else {
-    // In emulator or environments with Application Default Credentials
-    adminApp = initializeApp({
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "demo-project",
-    });
-  }
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "demo-project",
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "teukmassageandspa.firebasestorage.app",
+      });
+    } else {
+      // In emulator or environments with Application Default Credentials
+      adminApp = initializeApp({
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "demo-project",
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "teukmassageandspa.firebasestorage.app",
+      });
+    }
 } else {
   adminApp = getApps()[0];
 }
@@ -59,6 +61,16 @@ async function getAdminAuth(): Promise<Auth> {
   return _adminAuth;
 }
 
+// Lazy-load firebase-admin/storage to avoid ESM compatibility issues on Vercel
+let _adminStorage: any = null;
+async function getAdminStorage() {
+  if (!_adminStorage) {
+    const { getStorage } = await import("firebase-admin/storage");
+    _adminStorage = getStorage(adminApp);
+  }
+  return _adminStorage;
+}
+
 // Setup emulator configuration for admin SDK
 // (Disabled so we can test against your live Firebase console data!)
 /*
@@ -69,4 +81,4 @@ if (process.env.NODE_ENV === "development") {
 }
 */
 
-export { adminApp, adminDb, getAdminAuth };
+export { adminApp, adminDb, getAdminAuth, getAdminStorage };

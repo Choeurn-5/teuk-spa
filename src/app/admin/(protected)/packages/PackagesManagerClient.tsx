@@ -446,6 +446,7 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
                         src={pkg.imageUrl || "/images/defaults/spa_package.jpg"}
                         alt={pkg.name}
                         fill
+                        unoptimized={Boolean(pkg.imageUrl?.startsWith("data:"))}
                         className="object-cover"
                       />
                     </div>

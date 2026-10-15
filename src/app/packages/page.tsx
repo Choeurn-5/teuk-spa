@@ -69,6 +69,7 @@ export default async function PackagesPage() {
                     src={imgSrc}
                     alt={pkg.name}
                     fill
+                    unoptimized={Boolean(imgSrc?.startsWith("data:"))}
                     className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, 45vw"
                   />

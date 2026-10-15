@@ -24,7 +24,7 @@ export function ImagePicker({
             src={previewUrl}
             alt="Preview"
             fill
-            unoptimized={previewUrl.startsWith("blob:")}
+            unoptimized={previewUrl.startsWith("blob:") || previewUrl.startsWith("data:")}
             className="object-cover"
           />
         ) : (

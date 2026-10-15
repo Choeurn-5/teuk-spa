@@ -123,6 +123,7 @@ export function BookingStepper({ packages, treatments }: { packages: any[], trea
                             src={pkg.imageUrl || '/images/defaults/spa_package.jpg'}
                             alt={pkg.name}
                             fill
+                            unoptimized={Boolean(pkg.imageUrl?.startsWith("data:"))}
                             className="object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                         </div>

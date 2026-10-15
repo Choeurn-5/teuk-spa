@@ -338,6 +338,7 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
                             src={t.imageUrl}
                             alt={t.name}
                             fill
+                            unoptimized={Boolean(t.imageUrl.startsWith("data:"))}
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (

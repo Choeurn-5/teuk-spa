@@ -7,7 +7,27 @@ const nextConfig: NextConfig = {
     "allows-excel-lincoln-kings.trycloudflare.com",
     "localhost:3000",
   ],
-  serverExternalPackages: ["firebase-admin"],
+  serverExternalPackages: ["firebase-admin", "sharp"],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+      },
+      {
+        protocol: "https",
+        hostname: "storage.googleapis.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ibb.co",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

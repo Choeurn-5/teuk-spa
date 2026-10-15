@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { getAdminStorage } from "@/lib/firebase/admin";
+import sharp from "sharp";
+import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,42 +12,82 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // Determine file extension
+    // Determine and validate file extension
     const originalName = file.name || "upload.jpg";
     const rawExt = originalName.split(".").pop()?.toLowerCase() || "jpg";
-    const safeExt = ["jpeg", "jpg", "png", "webp"].includes(rawExt) ? rawExt : "jpg";
+    const allowedExts = ["jpeg", "jpg", "png", "webp"];
+    const allowedMimes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type) && !["jpg", "jpeg", "png", "webp"].includes(rawExt)) {
+    if (!allowedMimes.includes(file.type) && !allowedExts.includes(rawExt)) {
       return NextResponse.json(
         { error: "Only JPEG, PNG, and WebP images are allowed." },
         { status: 400 }
       );
     }
 
-    // Validate file size (max 5MB)
-    const MAX_SIZE = 5 * 1024 * 1024;
+    // Validate file size (max 8MB)
+    const MAX_SIZE = 8 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
       return NextResponse.json(
-        { error: `File size (${(file.size / (1024 * 1024)).toFixed(1)}MB) exceeds the 5MB limit.` },
+        { error: `File size exceeds the 8MB limit.` },
         { status: 400 }
       );
     }
 
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const rawBuffer = Buffer.from(bytes);
 
-    // Generate unique safe filename
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${safeExt}`;
+    // Optimize image with sharp: resize if too large, convert to webp
+    const optimizedBuffer = await sharp(rawBuffer)
+      .resize({ width: 1400, height: 1400, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 82 })
+      .toBuffer();
 
-    // Store in /public/uploads/
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "packages");
-    await mkdir(uploadDir, { recursive: true });
-    await writeFile(path.join(uploadDir, fileName), buffer);
+    // 1. Primary: Try Firebase Cloud Storage
+    try {
+      const storage = await getAdminStorage();
+      const bucketName =
+        process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+        `${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "teukmassageandspa"}.firebasestorage.app`;
 
-    const publicUrl = `/uploads/packages/${fileName}`;
-    return NextResponse.json({ url: publicUrl, success: true }, { status: 200 });
+      const bucket = storage.bucket(bucketName);
+      const [bucketExists] = await bucket.exists();
+
+      if (bucketExists) {
+        const downloadToken = crypto.randomUUID();
+        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}.webp`;
+        const filePath = `uploads/${fileName}`;
+        const fileRef = bucket.file(filePath);
+
+        await fileRef.save(optimizedBuffer, {
+          contentType: "image/webp",
+          metadata: {
+            metadata: {
+              firebaseStorageDownloadTokens: downloadToken,
+            },
+            cacheControl: "public, max-age=31536000",
+          },
+        });
+
+        const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filePath)}?alt=media&token=${downloadToken}`;
+        return NextResponse.json({ url: publicUrl, success: true }, { status: 200 });
+      } else {
+        console.warn(`Firebase Storage bucket "${bucketName}" does not exist yet. Using optimized fallback.`);
+      }
+    } catch (storageErr: any) {
+      console.warn("Firebase Storage upload attempt failed:", storageErr?.message);
+    }
+
+    // 2. Resilient Fallback: Compact WebP data URL
+    // When Firebase Storage is not yet initialized in the Firebase Console,
+    // this ensures the admin user is NEVER blocked from uploading treatment photos!
+    const compactBuffer = await sharp(rawBuffer)
+      .resize({ width: 800, height: 800, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 75 })
+      .toBuffer();
+
+    const dataUrl = `data:image/webp;base64,${compactBuffer.toString("base64")}`;
+    return NextResponse.json({ url: dataUrl, success: true }, { status: 200 });
   } catch (error: any) {
     console.error("Upload route error:", error);
     return NextResponse.json(

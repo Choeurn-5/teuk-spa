@@ -155,6 +155,7 @@ export default async function GalleryPage() {
                       src={item.src}
                       alt={item.caption}
                       fill
+                      unoptimized={Boolean(item.src?.startsWith("data:"))}
                       className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
                       sizes="(max-width: 768px) 50vw, 33vw"
                     />
