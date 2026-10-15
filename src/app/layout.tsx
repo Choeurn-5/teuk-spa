@@ -27,6 +27,7 @@ export const metadata: Metadata = {
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { MobileBottomBar } from "@/components/layout/MobileBottomBar";
+import { ConciergeChatWidget } from "@/components/ui/ConciergeChatWidget";
 
 export default function RootLayout({
   children,
@@ -40,6 +41,7 @@ export default function RootLayout({
         <main className="flex-grow">{children}</main>
         <Footer />
         <MobileBottomBar />
+        <ConciergeChatWidget />
       </body>
     </html>
   );
