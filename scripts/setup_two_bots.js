@@ -4,9 +4,10 @@ const adminToken = process.env.TELEGRAM_STAFF_BOT_TOKEN || process.env.TELEGRAM_
 const customerToken = process.env.TELEGRAM_CUSTOMER_BOT_TOKEN;
 const adminChatId = process.env.TELEGRAM_STAFF_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
 
-const tunnelBase = process.env.NEXT_PUBLIC_APP_URL || "https://teuk-spas.vercel.app";
+const tunnelBase = (process.argv[2] || process.env.NEXT_PUBLIC_APP_URL || "https://teuk-spa.vercel.app").replace(/\/$/, "");
 const appUrl = `${tunnelBase}/telegram`;
 const webhookUrl = `${tunnelBase}/api/telegram/webhook`;
+console.log(`Setting up bots with Base URL: ${tunnelBase}`);
 
 if (!adminToken || !customerToken) {
   console.error("Missing TELEGRAM_STAFF_BOT_TOKEN or TELEGRAM_CUSTOMER_BOT_TOKEN in .env.local");

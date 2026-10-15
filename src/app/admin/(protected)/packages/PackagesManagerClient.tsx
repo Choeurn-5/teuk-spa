@@ -450,8 +450,13 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
                       />
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-1">
+                      <div className="flex flex-wrap items-center gap-2.5 mb-1">
                         <h3 className="font-serif text-xl text-olive">{pkg.name}</h3>
+                        {pkg.khmerName && (
+                          <span className="text-sm font-medium text-gold font-sans">
+                            ({pkg.khmerName})
+                          </span>
+                        )}
                         {!pkg.active && (
                           <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded font-medium">Hidden</span>
                         )}

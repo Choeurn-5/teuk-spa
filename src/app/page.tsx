@@ -5,8 +5,8 @@ import { HeroSlider } from "@/components/ui/HeroSlider";
 import { getSiteSettings } from "@/lib/content/getters";
 import { BodyTensionConsultation } from "@/components/spa/BodyTensionConsultation";
 import { AromaOilBar } from "@/components/spa/AromaOilBar";
-import { CoupleSanctuarySection } from "@/components/spa/CoupleSanctuarySection";
 import { SpaEtiquetteSection } from "@/components/spa/SpaEtiquetteSection";
+import { PhilosophyFadeGallery } from "@/components/ui/PhilosophyFadeGallery";
 
 /* ─────────────────────────────────────────────
    Teuk Massage & Spa — Home Page
@@ -49,10 +49,10 @@ const marqueeText =
 export default async function HomePage() {
   const settings = await getSiteSettings() || {};
   const heroImages = [
-    settings.heroImage1 || "/images/defaults/spa_hero.jpg",
-    settings.heroImage2 || "/images/defaults/aromatherapy.jpg",
-    settings.heroImage3 || "/images/defaults/herbal_compress.jpg",
-    settings.heroImage4 || "/images/defaults/spa_package.jpg",
+    settings.heroImage1 || "/images/home-page/home-hero-4.jpg",
+    settings.heroImage2 || "/images/home-page/home-hero-1.jpg",
+    settings.heroImage3 || "/images/home-page/home-hero-2.jpg",
+    settings.heroImage4 || "/images/defaults/herbal_compress.jpg",
   ];
   
   return (
@@ -103,21 +103,9 @@ export default async function HomePage() {
       <section className="py-32 px-6 md:px-16 xl:px-32 max-w-screen-xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
 
-          {/* LEFT — Image with gold offset frame */}
+          {/* LEFT — Luxury Crossfade Gallery of Handcrafted Botanicals */}
           <FadeIn direction="left" delay={0.1}>
-            <div className="relative">
-              {/* Gold decorative frame behind image */}
-              <div className="absolute -top-4 -left-4 w-full h-full rounded-2xl border border-[#C9A84C]/60" />
-              <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden shadow-2xl">
-                <Image
-                  src={settings.aboutImage || "/images/defaults/spa_herbs.jpg"}
-                  alt="Fresh Cambodian herbs used in our treatments"
-                  fill
-                  className="object-cover object-center transition-transform duration-700 hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-              </div>
-            </div>
+            <PhilosophyFadeGallery />
           </FadeIn>
 
           {/* RIGHT — Copy */}
@@ -325,10 +313,6 @@ export default async function HomePage() {
       ══════════════════════════════════════════ */}
       <AromaOilBar />
 
-      {/* ══════════════════════════════════════════
-          4.8 PRIVATE COUPLE'S SANCTUARY SUITE
-      ══════════════════════════════════════════ */}
-      <CoupleSanctuarySection />
 
       {/* ══════════════════════════════════════════
           5. TESTIMONIAL PULL QUOTE
@@ -377,22 +361,23 @@ export default async function HomePage() {
       {/* ══════════════════════════════════════════
           6. BOOK CTA BANNER
       ══════════════════════════════════════════ */}
-      <section className="relative h-[60vh] min-h-[400px] overflow-hidden flex items-center justify-center">
-        {/* Background image */}
+      <section className="relative h-[65vh] min-h-[460px] overflow-hidden flex items-center justify-center">
+        {/* Background image — Real Hydrotherapy Bath */}
         <Image
-          src={settings.ctaImage || "/images/defaults/spa_package.jpg"}
-          alt="Spa package — candles, flowers, and oils"
+          src={settings.ctaImage || "/images/home-page/CTA.jpg"}
+          alt="Teuk Spa sanctuary hydrotherapy bath with floating lotus flowers and candles"
           fill
           className="object-cover object-center"
           sizes="100vw"
         />
 
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-[#2C2C2C]/65" />
+        {/* Ambient Dark Overlay with Subtle Warmth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/60 to-black/75" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(201,168,76,0.12)_0%,_transparent_70%)] pointer-events-none" />
 
         {/* Content */}
         <FadeIn direction="up" delay={0.1}>
-          <div className="relative z-10 text-center px-6 flex flex-col items-center gap-6">
+          <div className="relative z-10 text-center px-6 flex flex-col items-center gap-6 max-w-2xl mx-auto">
             <p
               className="text-xs font-medium tracking-[0.35em] uppercase text-[#C9A84C]"
               style={{ fontFamily: "'Jost', sans-serif" }}
@@ -400,23 +385,23 @@ export default async function HomePage() {
               Reserve Your Ritual
             </p>
             <h2
-              className="font-serif italic text-3xl md:text-5xl text-[#FAF7F2] leading-tight"
+              className="font-serif italic text-3xl sm:text-4xl md:text-5xl text-[#FAF7F2] leading-tight"
               style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
             >
               Your moment of calm is waiting.
             </h2>
             <Link
               href="/book"
-              className="mt-2 rounded-full bg-[#C9A84C] px-10 py-3.5 text-sm font-medium tracking-widest uppercase text-[#2C2C2C] transition-all duration-300 hover:bg-[#b8963e] hover:shadow-[0_0_40px_rgba(201,168,76,0.35)] hover:scale-105"
+              className="mt-2 rounded-full bg-[#C9A84C] px-10 py-3.5 text-sm font-medium tracking-widest uppercase text-[#2C2C2C] transition-all duration-300 hover:bg-[#b8963e] hover:shadow-[0_0_40px_rgba(201,168,76,0.4)] hover:scale-105 active:scale-95"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
               Book Now
             </Link>
             <p
-              className="text-white/50 text-xs tracking-widest uppercase"
+              className="text-white/60 text-xs tracking-widest uppercase font-light"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
-              Open daily 10AM – 10PM &nbsp;·&nbsp; Siem Reap, Cambodia
+              Daily 9:00 AM – 12:00 AM (Last Booking 11:00 PM) &nbsp;·&nbsp; Pakambor St, Siem Reap
             </p>
           </div>
         </FadeIn>

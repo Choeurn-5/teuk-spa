@@ -36,6 +36,8 @@ export async function deleteGalleryPhoto(id: string) {
 
 export async function addTreatment(data: {
   name: string;
+  khmerName?: string;
+  category?: string;
   shortDescription: string;
   durationMinutes?: number;
   price?: number;
@@ -53,6 +55,8 @@ export async function addTreatment(data: {
 
     await adminDb.collection("treatments").add({
       name: data.name,
+      khmerName: data.khmerName || "",
+      category: data.category || "Body Therapy",
       shortDescription: data.shortDescription,
       durationOptions,
       imageUrl: data.imageUrl || "",

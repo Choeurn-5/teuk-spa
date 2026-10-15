@@ -2,7 +2,7 @@ require("dotenv").config({ path: ".env.local" });
 
 const token = process.env.TELEGRAM_STAFF_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
 const chatId = process.env.TELEGRAM_STAFF_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
-const tunnelBase = process.env.NEXT_PUBLIC_APP_URL || "https://teuk-spas.vercel.app";
+const tunnelBase = process.env.NEXT_PUBLIC_APP_URL || "https://teuk-spa.vercel.app";
 const tunnelUrl = `${tunnelBase}/telegram`;
 
 if (!token || !chatId) {

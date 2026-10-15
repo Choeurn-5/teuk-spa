@@ -6,6 +6,7 @@ import { revalidatePath, updateTag } from "next/cache";
 
 export async function addPackage(data: {
   name: string;
+  khmerName?: string;
   description: string;
   totalMinutes: number;
   price: number;
@@ -18,6 +19,7 @@ export async function addPackage(data: {
 
     await adminDb.collection("packages").add({
       name: data.name,
+      khmerName: data.khmerName || "",
       description: data.description,
       totalMinutes: Number(data.totalMinutes),
       price: Number(data.price),

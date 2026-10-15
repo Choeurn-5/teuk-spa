@@ -16,7 +16,7 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
   const [uploadingId, setUploadingId] = useState<string | null>(null);
 
   const [newTreatment, setNewTreatment] = useState({
-    name: "", shortDescription: "", durationOptionsText: "60:25, 90:35", imageUrl: "",
+    name: "", khmerName: "", category: "Body Therapy", shortDescription: "", durationOptionsText: "60:25, 90:35", imageUrl: "",
   });
   const [newFile, setNewFile] = useState<File | null>(null);
   const [newPreview, setNewPreview] = useState<string | null>(null);
@@ -67,6 +67,8 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
     setEditingId(t.id);
     setEditData({
       name: t.name,
+      khmerName: t.khmerName || "",
+      category: t.category || "Body Therapy",
       shortDescription: t.shortDescription,
       active: t.active,
       durationOptionsText: t.durationOptions?.map((o: any) => `${o.minutes}:${o.price}`).join(', ') || "60:25",
@@ -98,6 +100,8 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
 
     const res = await updateTreatment(id, {
       name: finalData.name,
+      khmerName: finalData.khmerName || "",
+      category: finalData.category || "Body Therapy",
       shortDescription: finalData.shortDescription,
       active: finalData.active,
       imageUrl: finalData.imageUrl,
@@ -172,7 +176,7 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
         active: true,
         order: prev.length,
       }]);
-      setNewTreatment({ name: "", shortDescription: "", durationOptionsText: "60:25", imageUrl: "" });
+      setNewTreatment({ name: "", khmerName: "", category: "Body Therapy", shortDescription: "", durationOptionsText: "60:25", imageUrl: "" });
       setNewFile(null);
       setNewPreview(null);
       setShowAddForm(false);
@@ -199,12 +203,28 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
           <h3 className="font-serif text-xl text-olive">New Treatment</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-ink/80 mb-1">Treatment Name *</label>
-              <input required type="text" value={newTreatment.name} onChange={e => setNewTreatment({...newTreatment, name: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive" placeholder="e.g. Deep Tissue Massage" />
+              <label className="block text-sm font-medium text-ink/80 mb-1">Treatment Name (English) *</label>
+              <input required type="text" value={newTreatment.name} onChange={e => setNewTreatment({...newTreatment, name: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive" placeholder="e.g. Aromatherapy Massage" />
             </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-ink/80 mb-1">Durations & Prices (mins:price, separated by commas) *</label>
-              <input required type="text" value={newTreatment.durationOptionsText} onChange={e => setNewTreatment({...newTreatment, durationOptionsText: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive" placeholder="e.g. 60:25, 90:35" />
+            <div>
+              <label className="block text-sm font-medium text-ink/80 mb-1">Khmer Name (ឈ្មោះខ្មែរ)</label>
+              <input type="text" value={newTreatment.khmerName} onChange={e => setNewTreatment({...newTreatment, khmerName: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive" placeholder="e.g. ម៉ាស្សាប្រេងធម្មតា" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink/80 mb-1">Category *</label>
+              <select value={newTreatment.category} onChange={e => setNewTreatment({...newTreatment, category: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive bg-white">
+                <option value="Body Therapy">Body Therapy (ម៉ាស្សាខ្លួន)</option>
+                <option value="Facial Treatment">Facial Treatment (ម៉ាស្សាមុខ)</option>
+                <option value="Body Scrub">Body Scrub (ជម្រុះកោសិកាខ្លួន)</option>
+                <option value="Body Wrap">Body Wrap (អប់ស្បែក)</option>
+                <option value="Natural Nail Care & Salon">Natural Nail Care & Salon (ក្រចក & សក់)</option>
+                <option value="Wellness & Hydrotherapy">Wellness & Hydrotherapy (ស្ទីម & សូណា)</option>
+                <option value="Wellness & Beauty">Wellness & Beauty (បករោម)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink/80 mb-1">Durations & Prices (mins:price) *</label>
+              <input required type="text" value={newTreatment.durationOptionsText} onChange={e => setNewTreatment({...newTreatment, durationOptionsText: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive" placeholder="e.g. 60:25, 90:35, 120:45" />
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-ink/80 mb-1">Short Description *</label>
@@ -244,10 +264,26 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-ink/60 mb-1 uppercase tracking-widest">Name</label>
+                      <label className="block text-xs font-medium text-ink/60 mb-1 uppercase tracking-widest">Name (English)</label>
                       <input type="text" value={editData.name} onChange={e => setEditData({...editData, name: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive bg-white" />
                     </div>
-                    <div className="md:col-span-2">
+                    <div>
+                      <label className="block text-xs font-medium text-ink/60 mb-1 uppercase tracking-widest">Khmer Name (ឈ្មោះខ្មែរ)</label>
+                      <input type="text" value={editData.khmerName || ""} onChange={e => setEditData({...editData, khmerName: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive bg-white" placeholder="e.g. ម៉ាស្សាប្រេងធម្មតា" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-ink/60 mb-1 uppercase tracking-widest">Category</label>
+                      <select value={editData.category || "Body Therapy"} onChange={e => setEditData({...editData, category: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive bg-white">
+                        <option value="Body Therapy">Body Therapy (ម៉ាស្សាខ្លួន)</option>
+                        <option value="Facial Treatment">Facial Treatment (ម៉ាស្សាមុខ)</option>
+                        <option value="Body Scrub">Body Scrub (ជម្រុះកោសិកាខ្លួន)</option>
+                        <option value="Body Wrap">Body Wrap (អប់ស្បែក)</option>
+                        <option value="Natural Nail Care & Salon">Natural Nail Care & Salon (ក្រចក & សក់)</option>
+                        <option value="Wellness & Hydrotherapy">Wellness & Hydrotherapy (ស្ទីម & សូណា)</option>
+                        <option value="Wellness & Beauty">Wellness & Beauty (បករោម)</option>
+                      </select>
+                    </div>
+                    <div>
                       <label className="block text-xs font-medium text-ink/60 mb-1 uppercase tracking-widest">Durations & Prices (mins:price)</label>
                       <input type="text" value={editData.durationOptionsText} onChange={e => setEditData({...editData, durationOptionsText: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive bg-white" placeholder="60:25, 90:35" />
                     </div>
@@ -362,8 +398,18 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-1">
+                      <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
                         <h3 className="font-serif text-xl text-olive">{t.name}</h3>
+                        {t.khmerName && (
+                          <span className="text-sm font-medium text-gold font-sans">
+                            ({t.khmerName})
+                          </span>
+                        )}
+                        {t.category && (
+                          <span className="text-[11px] px-2.5 py-0.5 bg-olive/10 text-olive rounded-full font-medium">
+                            {t.category}
+                          </span>
+                        )}
                         {!t.active && <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded font-medium">Hidden</span>}
                       </div>
                       <p className="text-sm text-ink/60 font-light mb-2 max-w-xl">{t.shortDescription}</p>
