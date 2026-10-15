@@ -13,11 +13,11 @@ interface NavLink {
 }
 
 const navLinks: NavLink[] = [
-  { label: "Treatments", href: "/treatments" },
-  { label: "Packages", href: "/packages" },
-  { label: "Vouchers", href: "/gift-vouchers" },
-  { label: "Gallery", href: "/gallery" },
+  { label: "Home", href: "/" },
+  { label: "Treatment", href: "/treatments" },
+  { label: "Package", href: "/packages" },
   { label: "Our Story", href: "/about" },
+  { label: "Gallery", href: "/gallery" },
   { label: "Contact", href: "/contact" },
 ];
 
