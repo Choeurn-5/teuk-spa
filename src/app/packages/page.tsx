@@ -1,33 +1,43 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { getPackages } from '@/lib/content/getters'
+import { getPackages, getSiteSettings } from '@/lib/content/getters'
 import { FadeIn } from '@/components/ui/FadeIn'
-import { PageHero } from '@/components/ui/PageHero'
+import { HeroSlider, HeroSlideItem } from '@/components/ui/HeroSlider'
 
 // ─── component ──────────────────────────────────────────────────────────────
 
 export default async function PackagesPage() {
   const packages = await getPackages()
+  const settings = await getSiteSettings() || {}
+
+  const packageSlides: HeroSlideItem[] = [
+    {
+      image: settings.packageHero1 || "/images/package-page/package-hero-1.jpg",
+      heading: "Curated Khmer",
+      headingItalic: "Wellness Packages",
+      primaryCta: { label: "Book Sanctuary Package", href: "/book" },
+    },
+    {
+      image: settings.packageHero2 || "/images/package-page/package-hero2.jpg",
+      heading: "Private Cabana",
+      headingItalic: "Sanctuary Suites",
+      primaryCta: { label: "Reserve Your Journey", href: "/book" },
+    },
+    {
+      image: settings.packageHero3 || "/images/package-page/package-hero3.jpg",
+      heading: "Immersive Multi-Hour",
+      headingItalic: "Healing Rituals",
+      primaryCta: { label: "Explore Packages", href: "/book" },
+    },
+  ];
 
   return (
     <div className="bg-[#FAF7F2] text-[#2C2C2C] font-sans overflow-x-hidden">
 
       {/* ══════════════════════════════════════════════════════
-          1. HERO — Generous Height Luxury Ken Burns
+          1. HERO — Full Bleed Luxury Packages Slider
       ══════════════════════════════════════════════════════ */}
-      <PageHero
-        image="/images/defaults/spa_package.jpg"
-        badge="✦ Complete Transformation & Couple Rituals"
-        scriptTag="Immersive Journeys"
-        title="Sanctuary"
-        titleAccent="Packages"
-        description="Harmoniously sequenced treatments combining foot purification, botanical body polishes, herbal compress, and meditative massage."
-        heightClass="h-screen min-h-[750px] lg:min-h-[820px]"
-        actions={{
-          primary: { label: "Book a Package", href: "/book" },
-          secondary: { label: "Treatments Menu", href: "/treatments" },
-        }}
-      />
+      <HeroSlider slides={packageSlides} ariaLabel="Teuk Spa Sanctuary Packages" />
 
       {/* ══════════════════════════════════════════════════════
           2. PACKAGES GRID — premium full-width cards
