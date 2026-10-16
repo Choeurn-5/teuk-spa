@@ -9,6 +9,10 @@ import {
   sendGuestBookingConfirmation,
   sendGuestBookingCancellation,
 } from "@/lib/telegram/bot";
+import {
+  sendBookingEmailNotifications,
+  sendBookingStatusEmail,
+} from "@/lib/email";
 
 export async function checkAvailableSlots(dateStr: string, durationMinutes: number, guests: number) {
   // Expose the capacity logic to the client securely
@@ -130,6 +134,13 @@ export async function submitBookingRequest(formData: any) {
       console.error("Failed to send Telegram staff alert:", reference, telegramErr);
     }
 
+    // Send Email Notifications (to Spa Admin and Guest if email was provided)
+    try {
+      await sendBookingEmailNotifications(alertPayload);
+    } catch (emailErr) {
+      console.error("Failed to send booking email notification:", reference, emailErr);
+    }
+
     revalidatePath("/admin/bookings");
     return { success: true, reference };
 
@@ -229,6 +240,34 @@ export async function updateBookingStatus(bookingId: string, newStatus: string) 
           await sendGuestBookingCancellation(guestPayload, newStatus as any);
         } catch (err) {
           console.error("Failed to send guest cancellation on decline/cancel:", err);
+        }
+      }
+    }
+
+    // Notify guest via Email if email is present
+    if (finalBookingData?.guest?.email) {
+      const emailPayload = {
+        bookingId,
+        reference: finalBookingData.reference,
+        source: finalBookingData.source || "web",
+        guestName: finalBookingData.guest?.name || "Guest",
+        phone: finalBookingData.guest?.phone || "",
+        email: finalBookingData.guest?.email,
+        hotel: finalBookingData.guest?.hotel,
+        notes: finalBookingData.guest?.notes,
+        serviceName: finalBookingData.serviceName,
+        durationMinutes: finalBookingData.durationMinutes,
+        date: finalBookingData.date,
+        time: finalBookingData.time,
+        guests: finalBookingData.guests || 1,
+        price: finalBookingData.price,
+      };
+
+      if (newStatus === "confirmed") {
+        try {
+          await sendBookingStatusEmail(emailPayload, "confirmed");
+        } catch (emailErr) {
+          console.error("Failed to send guest booking confirmation email:", emailErr);
         }
       }
     }

@@ -254,7 +254,7 @@ export function BookingStepper({ packages, treatments }: { packages: any[], trea
                 {/* Form */}
                 <div className="lg:col-span-3">
                   <h2 className="text-3xl font-serif text-olive mb-2">3. Your details</h2>
-                  <p className="text-ink/60 font-light mb-8">We will send a WhatsApp message to confirm.</p>
+                  <p className="text-ink/60 font-light mb-8">We will send a confirmation to your WhatsApp and Email.</p>
 
                   <form id="booking-form" onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -270,8 +270,8 @@ export function BookingStepper({ packages, treatments }: { packages: any[], trea
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-ink/80 mb-1">Email (optional)</label>
-                        <input type="email" value={guestDetails.email} onChange={e => setGuestDetails({...guestDetails, email: e.target.value})} className="w-full px-4 py-3 bg-white border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive" />
+                        <label className="block text-sm font-medium text-ink/80 mb-1">Email (to receive booking receipt)</label>
+                        <input type="email" value={guestDetails.email} onChange={e => setGuestDetails({...guestDetails, email: e.target.value})} className="w-full px-4 py-3 bg-white border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive" placeholder="name@example.com" />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-ink/80 mb-1">Hotel (optional)</label>
@@ -357,6 +357,12 @@ export function BookingStepper({ packages, treatments }: { packages: any[], trea
                   <p className="text-ink/80 font-light leading-relaxed mb-4">
                     Our team is currently reviewing your request. We will send a confirmation message to your WhatsApp within 30 minutes to confirm your appointment.
                   </p>
+                  {guestDetails.email && (
+                    <p className="text-olive font-medium text-sm leading-relaxed mb-4 flex items-center bg-cream/70 p-3 rounded-xl border border-mist/80">
+                      <span className="mr-2 text-base">✉️</span>
+                      <span>A booking summary email has been dispatched to <strong>{guestDetails.email}</strong>.</span>
+                    </p>
+                  )}
                   <p className="text-ink/80 font-light leading-relaxed">
                     If you need immediate assistance, please feel free to message us directly.
                   </p>
