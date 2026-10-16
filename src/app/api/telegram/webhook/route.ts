@@ -19,26 +19,51 @@ export async function POST(req: NextRequest) {
         const [action, bookingId] = data.split(":");
         const newStatus = action === "confirm" ? "confirmed" : "declined";
 
-        // Update status in Firestore (this automatically triggers guest invoice or cancellation!)
-        const result = await updateBookingStatus(bookingId, newStatus);
-
-        // 1. Answer Telegram Callback Query popup
+        // 1. Immediately answer Telegram Callback Query popup to stop button spinner
         if (staffToken) {
-          await fetch(`https://api.telegram.org/bot${staffToken}/answerCallbackQuery`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              callback_query_id: cbId,
-              text:
-                action === "confirm"
-                  ? "✅ Confirmed! Guest notified & PDF invoice sent."
-                  : "❌ Declined. Guest notified.",
-              show_alert: true,
-            }),
-          });
+          try {
+            await fetch(`https://api.telegram.org/bot${staffToken}/answerCallbackQuery`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                callback_query_id: cbId,
+                text:
+                  action === "confirm"
+                    ? "✨ Confirmed! Guest notified & PDF invoice sent."
+                    : "✕ Declined. Time slot released.",
+                show_alert: false,
+              }),
+            });
+          } catch (e) {
+            console.error("Failed to answer callback query:", e);
+          }
+        }
 
-          // 2. Update message buttons to show the finalized action
-          if (staffChatId && messageId) {
+        // 2. Update status in Firestore (triggers guest invoice/cancellation & email)
+        let result = null;
+        try {
+          result = await updateBookingStatus(bookingId, newStatus);
+        } catch (err) {
+          console.error("Failed to update booking status in Firestore:", err);
+        }
+
+        // 3. Update message buttons to show finalized action while retaining useful contact & dashboard links
+        if (staffToken && staffChatId && messageId) {
+          try {
+            const originalKeyboard = cb.message?.reply_markup?.inline_keyboard || [];
+            // Preserve the contact and portal rows (rows 1 and beyond)
+            const retainedRows = originalKeyboard.length > 1 ? originalKeyboard.slice(1) : [];
+
+            const statusRow = [
+              {
+                text:
+                  action === "confirm"
+                    ? "✨ Confirmed (Invoice Sent)"
+                    : "🔴 Declined (Slot Released)",
+                callback_data: "done",
+              },
+            ];
+
             await fetch(`https://api.telegram.org/bot${staffToken}/editMessageReplyMarkup`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -46,24 +71,35 @@ export async function POST(req: NextRequest) {
                 chat_id: staffChatId,
                 message_id: messageId,
                 reply_markup: {
-                  inline_keyboard: [
-                    [
-                      {
-                        text:
-                          action === "confirm"
-                            ? "✅ Confirmed (Invoice Sent)"
-                            : "❌ Declined (Slot Released)",
-                        callback_data: "done",
-                      },
-                    ],
-                  ],
+                  inline_keyboard: [statusRow, ...retainedRows],
                 },
               }),
             });
+          } catch (markupErr) {
+            console.error("Failed to update message reply markup:", markupErr);
           }
         }
 
         return NextResponse.json({ ok: true, result });
+      }
+
+      if (data === "done") {
+        if (staffToken) {
+          try {
+            await fetch(`https://api.telegram.org/bot${staffToken}/answerCallbackQuery`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                callback_query_id: cbId,
+                text: "This reservation has already been finalized.",
+                show_alert: false,
+              }),
+            });
+          } catch (e) {
+            console.error("Error answering done callback query:", e);
+          }
+        }
+        return NextResponse.json({ ok: true });
       }
 
       return NextResponse.json({ ok: true });

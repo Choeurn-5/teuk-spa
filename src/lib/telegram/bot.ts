@@ -229,21 +229,26 @@ export async function sendBookingAlert(data: BookingAlertPayload): Promise<boole
 
   if (data.bookingId) {
     inlineKeyboard.push([
-      { text: "✅ Confirm Booking", callback_data: `confirm:${data.bookingId}` },
-      { text: "❌ Decline", callback_data: `decline:${data.bookingId}` },
+      { text: "🟢 Confirm & Invoice", callback_data: `confirm:${data.bookingId}` },
+      { text: "🔴 Decline", callback_data: `decline:${data.bookingId}` },
     ]);
   }
 
   const linksRow: any[] = [];
   if (wa) {
-    linksRow.push({ text: "💬 WhatsApp", url: `https://wa.me/${wa}` });
+    linksRow.push({ text: "💬 WhatsApp Guest", url: `https://wa.me/${wa}` });
   }
   if (data.telegramUser?.username) {
-    linksRow.push({ text: "✈️ Telegram", url: `https://t.me/${data.telegramUser.username}` });
+    linksRow.push({ text: "✈️ Telegram Guest", url: `https://t.me/${data.telegramUser.username}` });
   }
   if (linksRow.length > 0) {
     inlineKeyboard.push(linksRow);
   }
+
+  const appBase = (process.env.NEXT_PUBLIC_APP_URL || "https://www.teukmassageandspa.com").replace(/\/$/, "");
+  inlineKeyboard.push([
+    { text: "📋 Open Admin Dashboard", url: `${appBase}/admin/bookings` },
+  ]);
 
   const payload: any = {
     chat_id: chatId,
