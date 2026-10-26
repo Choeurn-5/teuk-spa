@@ -119,8 +119,12 @@ export async function POST(req: NextRequest) {
     const proto = req.headers.get("x-forwarded-proto") || "https";
     const appUrl = `${proto}://${host}/telegram`;
 
-    // Customer Bot reply to /start or text
-    if (customerToken && (text.startsWith("/start") || text.startsWith("/book") || text.length > 0)) {
+    // Customer Bot reply to /start or text (only in private direct chats, not groups)
+    if (
+      message.chat.type === "private" &&
+      customerToken &&
+      (text.startsWith("/start") || text.startsWith("/book") || text.length > 0)
+    ) {
       // Send welcome message with WebApp button
       await fetch(`https://api.telegram.org/bot${customerToken}/sendMessage`, {
         method: "POST",
