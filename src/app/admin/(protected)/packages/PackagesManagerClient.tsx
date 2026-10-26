@@ -529,6 +529,7 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
                         {!pkg.active && (
                           <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded font-medium">Hidden</span>
                         )}
+                      </div>
                       {(() => {
                         const priceInfo = calculateItemPrice(pkg.price, pkg.discountPrice, pkg.discountPercent);
                         if (priceInfo.hasDiscount) {

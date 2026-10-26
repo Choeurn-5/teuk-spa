@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { checkAvailableSlots, submitBookingRequest } from "@/lib/booking/actions";
 import { format, addDays } from "date-fns";
-import { Check, Calendar as CalendarIcon, Clock, Users, ArrowLeft, Flower2 } from "lucide-react";
+import { Check, Calendar as CalendarIcon, Clock, Users, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { calculateItemPrice, calculateDurationPrice } from "@/lib/pricing";
 
