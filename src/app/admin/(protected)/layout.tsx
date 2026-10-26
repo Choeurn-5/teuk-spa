@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { AdminReservationAlerts } from "@/components/admin/AdminReservationAlerts";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -140,17 +141,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Mobile top bar */}
-        <div className="lg:hidden bg-warm border-b border-mist flex items-center justify-between p-4 shadow-sm">
-          <div className="font-serif text-xl text-olive">Teuk Admin</div>
-          <button
-            type="button"
-            className="text-ink/60 hover:text-olive"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="h-6 w-6" aria-hidden="true" />
-          </button>
-        </div>
+        {/* Responsive Header Bar */}
+        <header className="bg-warm border-b border-mist px-4 sm:px-6 py-3 shadow-xs flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <button
+              type="button"
+              className="lg:hidden text-ink/60 hover:text-olive p-1 rounded-lg focus:outline-none"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open sidebar"
+            >
+              <Menu className="h-6 w-6" aria-hidden="true" />
+            </button>
+            <div className="font-serif text-xl text-olive lg:hidden">Teuk Admin</div>
+            <div className="hidden lg:flex items-center space-x-2 text-xs text-ink/50">
+              <span className="font-serif font-medium text-olive text-sm">Teuk Spa Admin</span>
+              <span>/</span>
+              <span className="text-ink/80 capitalize font-medium">
+                {pathname.replace("/admin", "").replace("/", "") || "Dashboard"}
+              </span>
+            </div>
+          </div>
+
+          {/* Right Header Actions: Sound Controls & Reservation Alerts */}
+          <div className="flex items-center">
+            <AdminReservationAlerts />
+          </div>
+        </header>
 
         <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none">
           <div className="p-6 md:p-8">

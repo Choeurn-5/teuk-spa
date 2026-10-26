@@ -30,7 +30,10 @@ export default async function AdminBookingsPage() {
         <p className="mt-2 text-sm text-ink/70">Review requests, confirm appointments, and manage your calendar.</p>
       </div>
 
-      <BookingListClient initialBookings={bookings} />
+      <BookingListClient
+        key={bookings.length > 0 ? `${bookings[0].id}-${bookings[0].updatedAt}-${bookings.length}` : "empty"}
+        initialBookings={bookings}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { updateBookingStatus } from "@/lib/booking/actions";
 import {
   CheckCircle2,
@@ -24,6 +24,37 @@ import { format } from "date-fns";
 export function BookingListClient({ initialBookings }: { initialBookings: any[] }) {
   const [bookings, setBookings] = useState<any[]>(initialBookings || []);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+
+
+  // Real-time listener: immediately prepend incoming reservation when alert triggers
+  useEffect(() => {
+    const handleNewBooking = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const newBooking = customEvent.detail;
+      if (!newBooking || !newBooking.id) return;
+
+      setBookings((prev) => {
+        if (prev.some((b) => b.id === newBooking.id)) return prev;
+        return [
+          {
+            ...newBooking,
+            guest: {
+              name: newBooking.guestName,
+              phone: newBooking.phone,
+              email: newBooking.email,
+              hotel: newBooking.hotel,
+            },
+          },
+          ...prev,
+        ];
+      });
+    };
+
+    window.addEventListener("teuk:new-booking", handleNewBooking);
+    return () => {
+      window.removeEventListener("teuk:new-booking", handleNewBooking);
+    };
+  }, []);
 
   // Filters & Search
   const [activeTab, setActiveTab] = useState<"all" | "new" | "confirmed" | "cancelled">("all");
