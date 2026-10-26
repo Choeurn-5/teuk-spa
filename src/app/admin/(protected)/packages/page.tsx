@@ -13,6 +13,8 @@ async function getAdminPackages() {
       description: data.description || "",
       totalMinutes: data.totalMinutes || 60,
       price: data.price || 0,
+      discountPrice: data.discountPrice !== undefined ? data.discountPrice : null,
+      discountPercent: data.discountPercent !== undefined ? data.discountPercent : null,
       currency: data.currency || "USD",
       active: data.active ?? true,
       order: data.order || 0,

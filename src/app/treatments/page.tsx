@@ -6,6 +6,7 @@ import { HeroSlider, HeroSlideItem } from '@/components/ui/HeroSlider'
 import { getSiteSettings } from '@/lib/content/getters'
 import { TreatmentModalityMatrix } from '@/components/spa/TreatmentModalityMatrix'
 import { AromaOilBar } from '@/components/spa/AromaOilBar'
+import { calculateDurationPrice } from '@/lib/pricing'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -96,6 +97,7 @@ export default async function TreatmentsPage() {
           {treatments.map((treatment: any, idx: number) => {
             const imgSrc = resolveImage(treatment)
             const firstOption = treatment.durationOptions?.[0] || { minutes: 60, price: 25 };
+            const priceInfo = calculateDurationPrice(firstOption, treatment.discountPercent);
             const hasMultiple = treatment.durationOptions?.length > 1;
 
             return (
@@ -111,6 +113,11 @@ export default async function TreatmentsPage() {
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500" />
+                    {priceInfo.hasDiscount && (
+                      <div className="absolute top-3 right-3 bg-[#8A3B2A] text-[#FAF7F2] text-[11px] font-bold tracking-wider uppercase px-3 py-1 rounded-full shadow-md backdrop-blur-sm">
+                        SAVE {priceInfo.discountPercent}%
+                      </div>
+                    )}
                   </div>
                   <div className="p-8 flex flex-col flex-grow">
                     <h3
@@ -131,8 +138,21 @@ export default async function TreatmentsPage() {
                         </svg>
                         {hasMultiple ? `From ${firstOption.minutes} mins` : `${firstOption.minutes} mins`}
                       </div>
-                      <div className="text-lg font-semibold text-[#C9A84C]">
-                        {hasMultiple ? `From $${firstOption.price}` : `$${firstOption.price}`}
+                      <div className="flex items-baseline gap-2">
+                        {priceInfo.hasDiscount ? (
+                          <>
+                            <span className="text-sm text-[#2C2C2C]/40 line-through">
+                              {hasMultiple ? `From $${priceInfo.regularPrice}` : `$${priceInfo.regularPrice}`}
+                            </span>
+                            <span className="text-xl font-bold text-[#8A3B2A]">
+                              {hasMultiple ? `From $${priceInfo.finalPrice}` : `$${priceInfo.finalPrice}`}
+                            </span>
+                          </>
+                        ) : (
+                          <div className="text-lg font-semibold text-[#C9A84C]">
+                            {hasMultiple ? `From $${priceInfo.regularPrice}` : `$${priceInfo.regularPrice}`}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { checkAvailableSlots, submitBookingRequest } from "@/lib/booking/actions";
 import { format, addDays } from "date-fns";
-import { Check, Calendar as CalendarIcon, Clock, Users, ArrowLeft } from "lucide-react";
+import { Check, Calendar as CalendarIcon, Clock, Users, ArrowLeft, Flower2 } from "lucide-react";
 import Image from "next/image";
+import { calculateItemPrice, calculateDurationPrice } from "@/lib/pricing";
 
 export function BookingStepper({ packages, treatments }: { packages: any[], treatments: any[] }) {
   const [step, setStep] = useState(1);
@@ -112,30 +113,49 @@ export function BookingStepper({ packages, treatments }: { packages: any[], trea
                 <div>
                   <h3 className="text-sm uppercase tracking-widest text-gold font-medium mb-4">Packages</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {packages.map(pkg => (
-                      <button
-                        key={pkg.id}
-                        onClick={() => handleServiceSelect(pkg, 'package')}
-                        className="text-left rounded-2xl border border-mist hover:border-olive hover:shadow-md transition-all bg-white group overflow-hidden flex flex-col"
-                      >
-                        <div className="relative w-full h-36 bg-mist overflow-hidden shrink-0">
-                          <Image
-                            src={pkg.imageUrl || '/images/defaults/spa_package.jpg'}
-                            alt={pkg.name}
-                            fill
-                            unoptimized={Boolean(pkg.imageUrl?.startsWith("data:"))}
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        </div>
-                        <div className="p-5 flex-1 flex flex-col justify-between">
-                          <div>
-                            <h4 className="font-serif text-xl text-olive mb-1 group-hover:text-gold transition-colors">{pkg.name}</h4>
-                            <p className="text-xs uppercase tracking-widest text-gold font-medium mb-2">{pkg.totalMinutes} MIN | ${pkg.price}</p>
-                            <p className="text-sm font-light text-ink/80 line-clamp-2">{pkg.description}</p>
+                    {packages.map(pkg => {
+                      const priceInfo = calculateItemPrice(pkg.price, pkg.discountPrice);
+                      return (
+                        <button
+                          key={pkg.id}
+                          onClick={() => handleServiceSelect(pkg, 'package', pkg.totalMinutes, priceInfo.finalPrice)}
+                          className="text-left rounded-2xl border border-mist hover:border-olive hover:shadow-md transition-all bg-white group overflow-hidden flex flex-col relative"
+                        >
+                          <div className="relative w-full h-36 bg-mist overflow-hidden shrink-0">
+                            <Image
+                              src={pkg.imageUrl || '/images/defaults/spa_package.jpg'}
+                              alt={pkg.name}
+                              fill
+                              unoptimized={Boolean(pkg.imageUrl?.startsWith("data:"))}
+                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            {priceInfo.hasDiscount && (
+                              <div className="absolute top-2.5 right-2.5 bg-[#8A3B2A] text-white text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full shadow-sm">
+                                SAVE ${priceInfo.savings} (-{priceInfo.discountPercent}%)
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      </button>
-                    ))}
+                          <div className="p-5 flex-1 flex flex-col justify-between">
+                            <div>
+                              <h4 className="font-serif text-xl text-olive mb-1 group-hover:text-gold transition-colors">{pkg.name}</h4>
+                              <div className="flex items-baseline gap-2 mb-2">
+                                <span className="text-xs uppercase tracking-widest text-gold font-medium">{pkg.totalMinutes} MIN</span>
+                                <span className="text-xs text-ink/30">|</span>
+                                {priceInfo.hasDiscount ? (
+                                  <div className="flex items-baseline gap-1.5">
+                                    <span className="text-xs text-ink/40 line-through">${priceInfo.regularPrice}</span>
+                                    <span className="text-sm font-bold text-[#8A3B2A]">${priceInfo.finalPrice}</span>
+                                  </div>
+                                ) : (
+                                  <span className="text-xs uppercase tracking-widest text-gold font-medium">${priceInfo.regularPrice}</span>
+                                )}
+                              </div>
+                              <p className="text-sm font-light text-ink/80 line-clamp-2">{pkg.description}</p>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -144,18 +164,40 @@ export function BookingStepper({ packages, treatments }: { packages: any[], trea
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {treatments.map(t => (
                       <div key={t.id} className="p-6 rounded-2xl border border-mist bg-white">
-                        <h4 className="font-serif text-xl text-olive mb-1">{t.name}</h4>
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h4 className="font-serif text-xl text-olive">{t.name}</h4>
+                          {t.discountPercent && (
+                            <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                              {t.discountPercent}% OFF
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm font-light text-ink/80 mb-4 line-clamp-2">{t.shortDescription}</p>
                         <div className="flex flex-wrap gap-2">
-                          {t.durationOptions?.map((opt: any, i: number) => (
-                            <button 
-                              key={i} 
-                              onClick={() => handleServiceSelect(t, 'treatment', opt.minutes, opt.price)}
-                              className="px-4 py-2 rounded-full border border-mist hover:bg-olive hover:text-cream text-sm transition-colors text-ink/80"
-                            >
-                              {opt.minutes}m / ${opt.price}
-                            </button>
-                          ))}
+                          {t.durationOptions?.map((opt: any, i: number) => {
+                            const priceInfo = calculateDurationPrice(opt, t.discountPercent);
+                            return (
+                              <button 
+                                key={i} 
+                                onClick={() => handleServiceSelect(t, 'treatment', opt.minutes, priceInfo.finalPrice)}
+                                className={`px-4 py-2 rounded-full border text-sm transition-colors flex items-center gap-1.5 ${
+                                  priceInfo.hasDiscount
+                                    ? "border-emerald-300 bg-emerald-50/50 hover:bg-emerald-600 hover:text-white text-emerald-900"
+                                    : "border-mist hover:bg-olive hover:text-cream text-ink/80"
+                                }`}
+                              >
+                                <span>{opt.minutes}m /</span>
+                                {priceInfo.hasDiscount ? (
+                                  <>
+                                    <span className="line-through text-xs opacity-60">${priceInfo.regularPrice}</span>
+                                    <span className="font-bold">${priceInfo.finalPrice}</span>
+                                  </>
+                                ) : (
+                                  <span>${priceInfo.regularPrice}</span>
+                                )}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                     ))}

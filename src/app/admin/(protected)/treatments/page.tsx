@@ -10,13 +10,17 @@ async function getAdminTreatments() {
     return {
       id: doc.id,
       name: data.name || "",
+      khmerName: data.khmerName || "",
+      category: data.category || "Body Therapy",
       shortDescription: data.shortDescription || "",
       active: data.active ?? true,
       order: data.order || 0,
       imageUrl: data.imageUrl || "",
+      discountPercent: data.discountPercent !== undefined ? data.discountPercent : null,
       durationOptions: (data.durationOptions || []).map((opt: any) => ({
         minutes: opt.minutes || 60,
         price: opt.price || 0,
+        discountPrice: opt.discountPrice !== undefined ? opt.discountPrice : null,
       })),
     };
   });

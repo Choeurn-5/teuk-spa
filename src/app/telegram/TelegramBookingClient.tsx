@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { checkAvailableSlots, submitBookingRequest } from "@/lib/booking/actions";
+import { calculateItemPrice, calculateDurationPrice } from "@/lib/pricing";
 
 interface TelegramUser {
   id: number;
@@ -169,20 +170,22 @@ export function TelegramBookingClient({
   // Handlers
   const handleSelectPackage = (pkg: any) => {
     haptic("medium");
+    const priceInfo = calculateItemPrice(pkg.price, pkg.discountPrice);
     setSelectedService({ ...pkg, type: "package" });
     setSelectedDuration(pkg.totalMinutes || 90);
-    setSelectedPrice(pkg.price || 0);
+    setSelectedPrice(priceInfo.finalPrice);
     setStep(2);
   };
 
-  const handleSelectTreatment = (treatment: any, option?: { minutes: number; price: number }) => {
+  const handleSelectTreatment = (treatment: any, option?: { minutes: number; price: number; discountPrice?: number | null }) => {
     haptic("medium");
-    const duration = option ? option.minutes : treatment.durationOptions?.[0]?.minutes || 60;
-    const price = option ? option.price : treatment.durationOptions?.[0]?.price || treatment.price || 25;
+    const firstOpt = treatment.durationOptions?.[0] || { minutes: 60, price: 25 };
+    const optToUse = option || firstOpt;
+    const priceInfo = calculateDurationPrice(optToUse, treatment.discountPercent);
 
     setSelectedService({ ...treatment, type: "treatment" });
-    setSelectedDuration(duration);
-    setSelectedPrice(price);
+    setSelectedDuration(optToUse.minutes);
+    setSelectedPrice(priceInfo.finalPrice);
     setStep(2);
   };
 
@@ -371,57 +374,76 @@ export function TelegramBookingClient({
             {/* PACKAGES VIEW */}
             {tab === "packages" && (
               <div className="space-y-3">
-                {packages.map((pkg) => (
-                  <div
-                    key={pkg.id}
-                    onClick={() => handleSelectPackage(pkg)}
-                    className="group relative rounded-2xl bg-[#141812] border border-[#252C20] hover:border-[#C9A84C]/60 transition-all p-3.5 flex flex-col justify-between cursor-pointer active:scale-[0.98] shadow-md"
-                  >
-                    <div className="flex gap-3 items-center">
-                      <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-[#20271B] shrink-0 border border-[#2A3423]">
-                        <Image
-                          src={pkg.imageUrl || "/images/defaults/spa_package.jpg"}
-                          alt={pkg.name}
-                          fill
-                          unoptimized={Boolean(pkg.imageUrl?.startsWith("data:"))}
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-1">
-                          <h3 className="font-serif text-base text-[#FAF7F2] truncate group-hover:text-[#C9A84C] transition-colors">
-                            {pkg.name}
-                          </h3>
+                {packages.map((pkg) => {
+                  const priceInfo = calculateItemPrice(pkg.price, pkg.discountPrice);
+                  return (
+                    <div
+                      key={pkg.id}
+                      onClick={() => handleSelectPackage(pkg)}
+                      className="group relative rounded-2xl bg-[#141812] border border-[#252C20] hover:border-[#C9A84C]/60 transition-all p-3.5 flex flex-col justify-between cursor-pointer active:scale-[0.98] shadow-md"
+                    >
+                      <div className="flex gap-3 items-center">
+                        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-[#20271B] shrink-0 border border-[#2A3423]">
+                          <Image
+                            src={pkg.imageUrl || "/images/defaults/spa_package.jpg"}
+                            alt={pkg.name}
+                            fill
+                            unoptimized={Boolean(pkg.imageUrl?.startsWith("data:"))}
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          {priceInfo.hasDiscount && (
+                            <div className="absolute top-1 right-1 bg-[#8A3B2A] text-white text-[9px] font-bold px-1.5 py-0.2 rounded shadow">
+                              -{priceInfo.discountPercent}%
+                            </div>
+                          )}
                         </div>
-                        <p className="text-[11px] text-[#A6A29A] line-clamp-2 mt-0.5 leading-snug">
-                          {pkg.description || pkg.subtitle}
-                        </p>
-                        <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-[#252C20]">
-                          <span className="text-[11px] text-[#A6A29A] flex items-center gap-1 font-light">
-                            <Clock className="w-3 h-3 text-[#C9A84C]" />
-                            {pkg.totalMinutes} min
-                          </span>
-                          <span className="font-serif text-base text-[#C9A84C] font-semibold">
-                            ${pkg.price}
-                          </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-1">
+                            <h3 className="font-serif text-base text-[#FAF7F2] truncate group-hover:text-[#C9A84C] transition-colors">
+                              {pkg.name}
+                            </h3>
+                          </div>
+                          <p className="text-[11px] text-[#A6A29A] line-clamp-2 mt-0.5 leading-snug">
+                            {pkg.description || pkg.subtitle}
+                          </p>
+                          <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-[#252C20]">
+                            <span className="text-[11px] text-[#A6A29A] flex items-center gap-1 font-light">
+                              <Clock className="w-3 h-3 text-[#C9A84C]" />
+                              {pkg.totalMinutes} min
+                            </span>
+                            <div className="flex items-baseline gap-1.5">
+                              {priceInfo.hasDiscount ? (
+                                <>
+                                  <span className="text-xs text-[#A6A29A] line-through font-normal">${priceInfo.regularPrice}</span>
+                                  <span className="font-serif text-base text-[#FAF7F2] font-bold text-[#E5A93B]">
+                                    ${priceInfo.finalPrice}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="font-serif text-base text-[#C9A84C] font-semibold">
+                                  ${priceInfo.regularPrice}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {pkg.includes && pkg.includes.length > 0 && (
-                      <div className="mt-2.5 pt-2 border-t border-[#20271A] flex flex-wrap gap-1">
-                        {pkg.includes.slice(0, 3).map((inc: string, i: number) => (
-                          <span
-                            key={i}
-                            className="text-[9.5px] px-2 py-0.5 rounded-full bg-[#1C2218] text-[#A6A29A] border border-[#273022]"
-                          >
-                            ✓ {inc}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      {pkg.includes && pkg.includes.length > 0 && (
+                        <div className="mt-2.5 pt-2 border-t border-[#20271A] flex flex-wrap gap-1">
+                          {pkg.includes.slice(0, 3).map((inc: string, i: number) => (
+                            <span
+                              key={i}
+                              className="text-[9.5px] px-2 py-0.5 rounded-full bg-[#1C2218] text-[#A6A29A] border border-[#273022]"
+                            >
+                              ✓ {inc}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
 
@@ -472,11 +494,18 @@ export function TelegramBookingClient({
                             <h3 className="font-serif text-base text-[#FAF7F2] truncate">
                               {t.name}
                             </h3>
-                            {t.category && (
-                              <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#C9A84C]/15 text-[#C9A84C]">
-                                {t.category}
-                              </span>
-                            )}
+                            <div className="flex items-center gap-1.5">
+                              {t.discountPercent && (
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
+                                  {t.discountPercent}% OFF
+                                </span>
+                              )}
+                              {t.category && (
+                                <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#C9A84C]/15 text-[#C9A84C]">
+                                  {t.category}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           <p className="text-[11px] text-[#A6A29A] line-clamp-2 mt-1 leading-snug">
                             {t.shortDescription || t.description}
@@ -487,20 +516,40 @@ export function TelegramBookingClient({
                       {/* Duration Choice Buttons */}
                       <div className="pt-2 border-t border-[#22281D] flex flex-wrap gap-2">
                         {opts.length > 0 ? (
-                          opts.map((opt: any, i: number) => (
-                            <button
-                              key={i}
-                              onClick={() => handleSelectTreatment(t, opt)}
-                              className="flex-1 min-w-[90px] py-1.5 px-2 rounded-xl bg-[#1C2218] border border-[#2D3626] hover:border-[#C9A84C] hover:bg-[#C9A84C]/10 text-center transition-all active:scale-[0.98]"
-                            >
-                              <div className="text-[10px] text-[#A6A29A] uppercase tracking-wider">
-                                {opt.minutes} mins
-                              </div>
-                              <div className="font-serif text-sm text-[#C9A84C] font-semibold">
-                                ${opt.price}
-                              </div>
-                            </button>
-                          ))
+                          opts.map((opt: any, i: number) => {
+                            const priceInfo = calculateDurationPrice(opt, t.discountPercent);
+                            return (
+                              <button
+                                key={i}
+                                onClick={() => handleSelectTreatment(t, opt)}
+                                className={`flex-1 min-w-[90px] py-1.5 px-2 rounded-xl border text-center transition-all active:scale-[0.98] ${
+                                  priceInfo.hasDiscount
+                                    ? "bg-[#182317] border-emerald-800/80 hover:border-emerald-500"
+                                    : "bg-[#1C2218] border-[#2D3626] hover:border-[#C9A84C] hover:bg-[#C9A84C]/10"
+                                }`}
+                              >
+                                <div className="text-[10px] text-[#A6A29A] uppercase tracking-wider">
+                                  {opt.minutes} mins
+                                </div>
+                                <div className="font-serif text-sm font-semibold flex items-center justify-center gap-1.5">
+                                  {priceInfo.hasDiscount ? (
+                                    <>
+                                      <span className="text-xs text-[#A6A29A] line-through font-normal">
+                                        ${priceInfo.regularPrice}
+                                      </span>
+                                      <span className="text-emerald-400 font-bold">
+                                        ${priceInfo.finalPrice}
+                                      </span>
+                                    </>
+                                  ) : (
+                                    <span className="text-[#C9A84C]">
+                                      ${priceInfo.regularPrice}
+                                    </span>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })
                         ) : (
                           <button
                             onClick={() => handleSelectTreatment(t)}

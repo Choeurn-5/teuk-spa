@@ -10,6 +10,7 @@ export async function addPackage(data: {
   description: string;
   totalMinutes: number;
   price: number;
+  discountPrice?: number | null;
   includes: string[];
   imageUrl?: string;
 }) {
@@ -17,12 +18,18 @@ export async function addPackage(data: {
     const snap = await adminDb.collection("packages").orderBy("order", "desc").limit(1).get();
     const nextOrder = snap.empty ? 0 : (snap.docs[0].data().order || 0) + 1;
 
+    const discountPrice =
+      data.discountPrice !== undefined && data.discountPrice !== null && !isNaN(Number(data.discountPrice)) && Number(data.discountPrice) > 0
+        ? Number(data.discountPrice)
+        : null;
+
     await adminDb.collection("packages").add({
       name: data.name,
       khmerName: data.khmerName || "",
       description: data.description,
       totalMinutes: Number(data.totalMinutes),
       price: Number(data.price),
+      discountPrice,
       currency: "USD",
       includes: data.includes.filter(Boolean),
       imageUrl: data.imageUrl || "",
@@ -44,10 +51,16 @@ export async function addPackage(data: {
 
 export async function updatePackage(id: string, data: any) {
   try {
+    const discountPrice =
+      data.discountPrice !== undefined && data.discountPrice !== null && !isNaN(Number(data.discountPrice)) && Number(data.discountPrice) > 0
+        ? Number(data.discountPrice)
+        : null;
+
     await adminDb.collection("packages").doc(id).update({
       ...data,
       totalMinutes: Number(data.totalMinutes),
       price: Number(data.price),
+      discountPrice,
       includes: data.includes.filter(Boolean),
       updatedAt: FieldValue.serverTimestamp(),
     });

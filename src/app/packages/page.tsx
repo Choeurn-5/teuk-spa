@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getPackages, getSiteSettings } from '@/lib/content/getters'
 import { FadeIn } from '@/components/ui/FadeIn'
 import { HeroSlider, HeroSlideItem } from '@/components/ui/HeroSlider'
+import { calculateItemPrice } from '@/lib/pricing'
 
 // ─── component ──────────────────────────────────────────────────────────────
 
@@ -63,9 +64,7 @@ export default async function PackagesPage() {
             ? pkg.includes
             : (Array.isArray(pkg.items) ? pkg.items.map((it: any) => typeof it === 'string' ? it : `${it.minutes ? `${it.minutes}m ` : ''}${it.name}`) : (pkg.treatments ?? []))
           const formattedDuration = pkg.duration || (pkg.totalMinutes ? `${pkg.totalMinutes} min` : '90 min')
-          const formattedPrice = typeof pkg.price === 'number'
-            ? `$${pkg.price}`
-            : (pkg.price ? (String(pkg.price).startsWith('$') ? pkg.price : `$${pkg.price}`) : '$50')
+          const priceInfo = calculateItemPrice(pkg.price, pkg.discountPrice)
           const isOdd = idx % 2 !== 0
 
           return (
@@ -86,11 +85,16 @@ export default async function PackagesPage() {
                   {/* Subtle luxury gradient vignette */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
 
-                  {/* Top luxury badge */}
-                  <div className="absolute top-5 left-5 z-10">
+                  {/* Top luxury badge & discount badge */}
+                  <div className="absolute top-5 left-5 right-5 z-10 flex items-center justify-between">
                     <span className="inline-flex items-center gap-1.5 bg-[#4A5240]/85 backdrop-blur-md border border-[#C9A84C]/50 text-[#FAF7F2] text-[10px] tracking-[0.25em] uppercase font-medium px-3.5 py-1.5 rounded-full shadow-lg">
                       ✦ Sanctuary Ritual
                     </span>
+                    {priceInfo.hasDiscount && (
+                      <span className="inline-flex items-center gap-1 bg-[#8A3B2A] text-white text-[10px] tracking-[0.2em] uppercase font-bold px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
+                        SAVE ${priceInfo.savings} (-{priceInfo.discountPercent}%)
+                      </span>
+                    )}
                   </div>
 
                   {/* Bottom overlay with duration & name */}
@@ -122,12 +126,28 @@ export default async function PackagesPage() {
 
                     <div className="text-right shrink-0">
                       <span className="text-[10px] text-[#FAF7F2]/60 uppercase tracking-widest block font-sans">Price</span>
-                      <p
-                        className="font-serif text-3xl md:text-4xl text-[#C9A84C] font-light leading-none"
-                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                      >
-                        {formattedPrice}
-                      </p>
+                      <div className="flex items-baseline justify-end gap-2">
+                        {priceInfo.hasDiscount ? (
+                          <>
+                            <span className="text-sm md:text-base text-[#FAF7F2]/60 line-through">
+                              ${priceInfo.regularPrice}
+                            </span>
+                            <p
+                              className="font-serif text-3xl md:text-4xl text-[#C9A84C] font-semibold leading-none"
+                              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                            >
+                              ${priceInfo.finalPrice}
+                            </p>
+                          </>
+                        ) : (
+                          <p
+                            className="font-serif text-3xl md:text-4xl text-[#C9A84C] font-light leading-none"
+                            style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                          >
+                            ${priceInfo.regularPrice}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -185,13 +205,36 @@ export default async function PackagesPage() {
                   {/* CTA buttons + price summary */}
                   <div className="pt-6 border-t border-[#C9A84C]/20 flex flex-col sm:flex-row gap-4 items-center justify-between">
                     <div>
-                      <span className="text-xs uppercase tracking-widest text-[#2C2C2C]/50 block">Investment</span>
-                      <span
-                        className="font-serif text-3xl md:text-4xl text-[#C9A84C] font-light leading-none"
-                        style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                      >
-                        {formattedPrice}
-                      </span>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs uppercase tracking-widest text-[#2C2C2C]/50 block">Investment</span>
+                        {priceInfo.hasDiscount && (
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                            Save ${priceInfo.savings} (-{priceInfo.discountPercent}%)
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-baseline gap-2.5">
+                        {priceInfo.hasDiscount ? (
+                          <>
+                            <span className="text-base text-[#2C2C2C]/40 line-through">
+                              ${priceInfo.regularPrice}
+                            </span>
+                            <span
+                              className="font-serif text-3xl md:text-4xl text-[#8A3B2A] font-medium leading-none"
+                              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                            >
+                              ${priceInfo.finalPrice}
+                            </span>
+                          </>
+                        ) : (
+                          <span
+                            className="font-serif text-3xl md:text-4xl text-[#C9A84C] font-light leading-none"
+                            style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                          >
+                            ${priceInfo.regularPrice}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex gap-3 w-full sm:w-auto">

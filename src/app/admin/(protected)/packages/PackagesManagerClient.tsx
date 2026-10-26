@@ -2,8 +2,9 @@
 
 import { useState, useRef } from "react";
 import { addPackage, updatePackage, deletePackage } from "./actions";
-import { Trash2, Edit2, Check, X, Plus, UploadCloud, Loader2 } from "lucide-react";
+import { Trash2, Edit2, Check, X, Plus, UploadCloud, Loader2, Tag } from "lucide-react";
 import Image from "next/image";
+import { calculateItemPrice } from "@/lib/pricing";
 
 // Helpers for the "includes" list
 const updateInclude = (list: string[], i: number, val: string) => list.map((item, idx) => idx === i ? val : item);
@@ -107,7 +108,7 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
   const [editPkgPreview, setEditPkgPreview] = useState<string | null>(null);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
 
-  const emptyNew = { name: "", description: "", totalMinutes: 90, price: 50, includes: [""], imageUrl: "" };
+  const emptyNew = { name: "", description: "", totalMinutes: 90, price: 50, discountPrice: "", includes: [""], imageUrl: "" };
   const [newPkg, setNewPkg] = useState(emptyNew);
   const [newPkgPreview, setNewPkgPreview] = useState<string | null>(null);
   const [newPkgFile, setNewPkgFile] = useState<File | null>(null);
@@ -164,14 +165,30 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
 
   const startEdit = (pkg: any) => {
     setEditingId(pkg.id);
-    setEditData({ ...pkg, includes: pkg.includes?.length ? pkg.includes : [""] });
+    setEditData({
+      ...pkg,
+      price: pkg.price || 0,
+      discountPrice: pkg.discountPrice !== undefined && pkg.discountPrice !== null ? pkg.discountPrice : "",
+      includes: pkg.includes?.length ? pkg.includes : [""]
+    });
     setEditPkgFile(null);
     setEditPkgPreview(null);
   };
 
   const handleSave = async (id: string) => {
     setLoading(true);
-    let finalData = { ...editData };
+    const parsedPrice = Number(editData.price) || 0;
+    const parsedDiscount =
+      editData.discountPrice !== "" && editData.discountPrice !== null && !isNaN(Number(editData.discountPrice)) && Number(editData.discountPrice) > 0
+        ? Number(editData.discountPrice)
+        : null;
+
+    let finalData = {
+      ...editData,
+      totalMinutes: Number(editData.totalMinutes),
+      price: parsedPrice,
+      discountPrice: parsedDiscount,
+    };
 
     // Upload new image if staged
     if (editPkgFile) {
@@ -225,17 +242,24 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
       imageUrl = url;
     }
 
+    const parsedPrice = Number(newPkg.price) || 0;
+    const parsedDiscount =
+      newPkg.discountPrice !== "" && newPkg.discountPrice !== null && !isNaN(Number(newPkg.discountPrice)) && Number(newPkg.discountPrice) > 0
+        ? Number(newPkg.discountPrice)
+        : null;
+
     const res = await addPackage({
       ...newPkg,
       totalMinutes: Number(newPkg.totalMinutes),
-      price: Number(newPkg.price),
+      price: parsedPrice,
+      discountPrice: parsedDiscount,
       imageUrl,
     });
 
     if (res.success) {
       setPackages(prev => [
         ...prev,
-        { id: Date.now().toString(), ...newPkg, imageUrl, active: true, order: prev.length },
+        { id: Date.now().toString(), ...newPkg, price: parsedPrice, discountPrice: parsedDiscount, imageUrl, active: true, order: prev.length },
       ]);
       setNewPkg(emptyNew);
       setNewPkgPreview(null);
@@ -246,6 +270,7 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
     }
     setLoading(false);
   };
+
 
   return (
     <div className="space-y-4">
@@ -274,8 +299,8 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
                 placeholder="e.g. Teuk Signature Package"
               />
             </div>
-            <div className="flex gap-3">
-              <div className="flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
                 <label className="block text-sm font-medium text-ink/80 mb-1">Minutes *</label>
                 <input
                   required
@@ -285,17 +310,40 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
                   className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive"
                 />
               </div>
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-ink/80 mb-1">Price (USD) *</label>
+              <div>
+                <label className="block text-sm font-medium text-ink/80 mb-1">Real Price (USD) *</label>
                 <input
                   required
                   type="number"
                   value={newPkg.price}
                   onChange={e => setNewPkg({ ...newPkg, price: Number(e.target.value) })}
                   className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive"
+                  placeholder="e.g. 65"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-ink/80 mb-1">
+                  Discount Price (USD)
+                </label>
+                <input
+                  type="number"
+                  value={newPkg.discountPrice ?? ""}
+                  onChange={e => setNewPkg({ ...newPkg, discountPrice: e.target.value })}
+                  className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive"
+                  placeholder="Leave empty if none"
                 />
               </div>
             </div>
+            {newPkg.discountPrice && Number(newPkg.discountPrice) > 0 && Number(newPkg.discountPrice) < Number(newPkg.price) ? (
+              <div className="md:col-span-2 text-xs bg-gold/15 border border-gold/40 text-olive p-2.5 rounded-xl flex items-center justify-between">
+                <span>
+                  <strong>Discount Active:</strong> Real price <span className="line-through">${newPkg.price}</span> ➔ Discounted price <strong className="text-olive">${newPkg.discountPrice}</strong>
+                </span>
+                <span className="font-bold bg-gold/30 px-2 py-0.5 rounded-full">
+                  Save ${Number(newPkg.price) - Number(newPkg.discountPrice)} ({Math.round(((Number(newPkg.price) - Number(newPkg.discountPrice)) / Number(newPkg.price)) * 100)}% OFF)
+                </span>
+              </div>
+            ) : null}
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-ink/80 mb-1">Description *</label>
               <textarea
@@ -358,8 +406,8 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
                         className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive bg-white"
                       />
                     </div>
-                    <div className="flex gap-3">
-                      <div className="flex-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
                         <label className="block text-xs font-medium text-ink/60 uppercase tracking-widest mb-1">Minutes</label>
                         <input
                           type="number"
@@ -368,8 +416,8 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
                           className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive bg-white"
                         />
                       </div>
-                      <div className="flex-1">
-                        <label className="block text-xs font-medium text-ink/60 uppercase tracking-widest mb-1">Price ($)</label>
+                      <div>
+                        <label className="block text-xs font-medium text-ink/60 uppercase tracking-widest mb-1">Real Price ($)</label>
                         <input
                           type="number"
                           value={editData.price}
@@ -377,7 +425,27 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
                           className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive bg-white"
                         />
                       </div>
+                      <div>
+                        <label className="block text-xs font-medium text-ink/60 uppercase tracking-widest mb-1">Discount Price ($)</label>
+                        <input
+                          type="number"
+                          value={editData.discountPrice ?? ""}
+                          onChange={e => setEditData({ ...editData, discountPrice: e.target.value })}
+                          className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive bg-white"
+                          placeholder="Leave empty if none"
+                        />
+                      </div>
                     </div>
+                    {editData.discountPrice && Number(editData.discountPrice) > 0 && Number(editData.discountPrice) < Number(editData.price) ? (
+                      <div className="md:col-span-2 text-xs bg-gold/15 border border-gold/40 text-olive p-2 rounded-xl flex items-center justify-between">
+                        <span>
+                          <strong>Discount Active:</strong> Real price <span className="line-through">${editData.price}</span> ➔ Discounted price <strong className="text-olive">${editData.discountPrice}</strong>
+                        </span>
+                        <span className="font-bold bg-gold/30 px-2 py-0.5 rounded-full">
+                          Save ${Number(editData.price) - Number(editData.discountPrice)} ({Math.round(((Number(editData.price) - Number(editData.discountPrice)) / Number(editData.price)) * 100)}% OFF)
+                        </span>
+                      </div>
+                    ) : null}
                     <div className="flex items-center">
                       <input
                         type="checkbox"
@@ -461,10 +529,32 @@ export function PackagesManagerClient({ initialPackages }: { initialPackages: an
                         {!pkg.active && (
                           <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded font-medium">Hidden</span>
                         )}
-                      </div>
-                      <p className="text-xs text-gold uppercase tracking-widest font-medium mb-1">
-                        {pkg.totalMinutes} MIN · ${pkg.price}
-                      </p>
+                      {(() => {
+                        const priceInfo = calculateItemPrice(pkg.price, pkg.discountPrice, pkg.discountPercent);
+                        if (priceInfo.hasDiscount) {
+                          return (
+                            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                              <span className="text-xs text-gold uppercase tracking-widest font-medium">
+                                {pkg.totalMinutes} MIN ·
+                              </span>
+                              <span className="text-xs line-through text-ink/40 font-mono">
+                                ${priceInfo.regularPrice}
+                              </span>
+                              <span className="text-sm font-bold text-olive font-mono">
+                                ${priceInfo.finalPrice}
+                              </span>
+                              <span className="text-[10px] font-semibold bg-gold/25 text-olive px-2 py-0.5 rounded-full border border-gold/40">
+                                SAVE ${priceInfo.savings} (-{priceInfo.discountPercent}%)
+                              </span>
+                            </div>
+                          );
+                        }
+                        return (
+                          <p className="text-xs text-gold uppercase tracking-widest font-medium mb-1">
+                            {pkg.totalMinutes} MIN · ${pkg.price}
+                          </p>
+                        );
+                      })()}
                       <p className="text-sm text-ink/70 font-light line-clamp-2">{pkg.description}</p>
                     </div>
                   </div>

@@ -41,7 +41,8 @@ export async function addTreatment(data: {
   shortDescription: string;
   durationMinutes?: number;
   price?: number;
-  durationOptions?: { minutes: number; price: number }[];
+  discountPercent?: number | null;
+  durationOptions?: { minutes: number; price: number; discountPrice?: number | null }[];
   imageUrl?: string;
 }) {
   try {
@@ -50,8 +51,20 @@ export async function addTreatment(data: {
 
     const durationOptions =
       data.durationOptions && data.durationOptions.length > 0
-        ? data.durationOptions
-        : [{ minutes: data.durationMinutes || 60, price: data.price || 25 }];
+        ? data.durationOptions.map((opt) => ({
+            minutes: Number(opt.minutes) || 60,
+            price: Number(opt.price) || 0,
+            discountPrice:
+              opt.discountPrice !== undefined && opt.discountPrice !== null && !isNaN(Number(opt.discountPrice)) && Number(opt.discountPrice) > 0
+                ? Number(opt.discountPrice)
+                : null,
+          }))
+        : [{ minutes: data.durationMinutes || 60, price: data.price || 25, discountPrice: null }];
+
+    const discountPercent =
+      data.discountPercent !== undefined && data.discountPercent !== null && !isNaN(Number(data.discountPercent)) && Number(data.discountPercent) > 0
+        ? Number(data.discountPercent)
+        : null;
 
     await adminDb.collection("treatments").add({
       name: data.name,
@@ -59,6 +72,7 @@ export async function addTreatment(data: {
       category: data.category || "Body Therapy",
       shortDescription: data.shortDescription,
       durationOptions,
+      discountPercent,
       imageUrl: data.imageUrl || "",
       active: true,
       order: nextOrder,

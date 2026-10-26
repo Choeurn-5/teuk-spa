@@ -3,8 +3,9 @@
 import { useState, useRef } from "react";
 import { updateTreatment } from "@/lib/content/actions";
 import { addTreatment, deleteTreatment } from "@/lib/admin/actions";
-import { Trash2, Edit2, X, Check, Plus, UploadCloud, Loader2 } from "lucide-react";
+import { Trash2, Edit2, X, Check, Plus, UploadCloud, Loader2, Tag } from "lucide-react";
 import Image from "next/image";
+import { calculateDurationPrice } from "@/lib/pricing";
 
 import { ImagePicker } from "@/components/admin/ImagePicker";
 
@@ -16,7 +17,13 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
   const [uploadingId, setUploadingId] = useState<string | null>(null);
 
   const [newTreatment, setNewTreatment] = useState({
-    name: "", khmerName: "", category: "Body Therapy", shortDescription: "", durationOptionsText: "60:25, 90:35", imageUrl: "",
+    name: "",
+    khmerName: "",
+    category: "Body Therapy",
+    shortDescription: "",
+    durationOptionsText: "60:25, 90:35",
+    discountPercent: "",
+    imageUrl: "",
   });
   const [newFile, setNewFile] = useState<File | null>(null);
   const [newPreview, setNewPreview] = useState<string | null>(null);
@@ -71,7 +78,11 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
       category: t.category || "Body Therapy",
       shortDescription: t.shortDescription,
       active: t.active,
-      durationOptionsText: t.durationOptions?.map((o: any) => `${o.minutes}:${o.price}`).join(', ') || "60:25",
+      discountPercent: t.discountPercent !== undefined && t.discountPercent !== null ? t.discountPercent : "",
+      durationOptionsText:
+        t.durationOptions
+          ?.map((o: any) => (o.discountPrice ? `${o.minutes}:${o.price}:${o.discountPrice}` : `${o.minutes}:${o.price}`))
+          .join(", ") || "60:25",
       imageUrl: t.imageUrl || "",
     });
     setEditFile(null);
@@ -93,10 +104,21 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
       finalData.imageUrl = url;
     }
 
-    const parsedOptions = finalData.durationOptionsText.split(',').map((s: string) => {
-      const [m, p] = s.split(':').map((n: string) => parseInt(n.trim(), 10));
-      return { minutes: isNaN(m) ? 60 : m, price: isNaN(p) ? 0 : p };
+    const parsedOptions = finalData.durationOptionsText.split(",").map((s: string) => {
+      const parts = s.split(":").map((n: string) => parseInt(n.trim(), 10));
+      const minutes = isNaN(parts[0]) ? 60 : parts[0];
+      const price = isNaN(parts[1]) ? 0 : parts[1];
+      const discountPrice = parts.length >= 3 && !isNaN(parts[2]) && parts[2] > 0 ? parts[2] : null;
+      return { minutes, price, discountPrice };
     });
+
+    const parsedDiscountPercent =
+      finalData.discountPercent !== "" &&
+      finalData.discountPercent !== null &&
+      !isNaN(Number(finalData.discountPercent)) &&
+      Number(finalData.discountPercent) > 0
+        ? Number(finalData.discountPercent)
+        : null;
 
     const res = await updateTreatment(id, {
       name: finalData.name,
@@ -106,9 +128,16 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
       active: finalData.active,
       imageUrl: finalData.imageUrl,
       durationOptions: parsedOptions,
+      discountPercent: parsedDiscountPercent,
     });
     if (res.success) {
-      setTreatments(prev => prev.map(t => t.id === id ? { ...t, ...finalData, durationOptions: parsedOptions } : t));
+      setTreatments(prev =>
+        prev.map(t =>
+          t.id === id
+            ? { ...t, ...finalData, durationOptions: parsedOptions, discountPercent: parsedDiscountPercent }
+            : t
+        )
+      );
       setEditingId(null);
       setEditFile(null);
       setEditPreview(null);
@@ -122,7 +151,7 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
     if (url) {
       const res = await updateTreatment(id, { imageUrl: url });
       if (res.success) {
-        setTreatments(prev => prev.map(t => t.id === id ? { ...t, imageUrl: url } : t));
+        setTreatments(prev => prev.map(t => (t.id === id ? { ...t, imageUrl: url } : t)));
       } else {
         alert("Failed to update treatment image.");
       }
@@ -156,27 +185,51 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
       imageUrl = url;
     }
 
-    const parsedOptions = newTreatment.durationOptionsText.split(',').map((s: string) => {
-      const [m, p] = s.split(':').map((n: string) => parseInt(n.trim(), 10));
-      return { minutes: isNaN(m) ? 60 : m, price: isNaN(p) ? 0 : p };
+    const parsedOptions = newTreatment.durationOptionsText.split(",").map((s: string) => {
+      const parts = s.split(":").map((n: string) => parseInt(n.trim(), 10));
+      const minutes = isNaN(parts[0]) ? 60 : parts[0];
+      const price = isNaN(parts[1]) ? 0 : parts[1];
+      const discountPrice = parts.length >= 3 && !isNaN(parts[2]) && parts[2] > 0 ? parts[2] : null;
+      return { minutes, price, discountPrice };
     });
+
+    const parsedDiscountPercent =
+      newTreatment.discountPercent !== "" &&
+      newTreatment.discountPercent !== null &&
+      !isNaN(Number(newTreatment.discountPercent)) &&
+      Number(newTreatment.discountPercent) > 0
+        ? Number(newTreatment.discountPercent)
+        : null;
 
     const res = await addTreatment({
       ...newTreatment,
       durationOptions: parsedOptions,
-      imageUrl
+      discountPercent: parsedDiscountPercent,
+      imageUrl,
     });
 
     if (res.success) {
-      setTreatments(prev => [...prev, {
-        id: Date.now().toString(),
-        ...newTreatment,
-        imageUrl,
-        durationOptions: parsedOptions,
-        active: true,
-        order: prev.length,
-      }]);
-      setNewTreatment({ name: "", khmerName: "", category: "Body Therapy", shortDescription: "", durationOptionsText: "60:25", imageUrl: "" });
+      setTreatments(prev => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          ...newTreatment,
+          imageUrl,
+          durationOptions: parsedOptions,
+          discountPercent: parsedDiscountPercent,
+          active: true,
+          order: prev.length,
+        },
+      ]);
+      setNewTreatment({
+        name: "",
+        khmerName: "",
+        category: "Body Therapy",
+        shortDescription: "",
+        durationOptionsText: "60:25, 90:35",
+        discountPercent: "",
+        imageUrl: "",
+      });
       setNewFile(null);
       setNewPreview(null);
       setShowAddForm(false);
@@ -223,8 +276,24 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-ink/80 mb-1">Durations & Prices (mins:price) *</label>
-              <input required type="text" value={newTreatment.durationOptionsText} onChange={e => setNewTreatment({...newTreatment, durationOptionsText: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive" placeholder="e.g. 60:25, 90:35, 120:45" />
+              <label className="block text-sm font-medium text-ink/80 mb-1">Durations & Prices (mins:price or mins:price:discount) *</label>
+              <input required type="text" value={newTreatment.durationOptionsText} onChange={e => setNewTreatment({...newTreatment, durationOptionsText: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive" placeholder="e.g. 60:25, 90:35 (or 60:25:20 for discount)" />
+              <p className="text-[11px] text-ink/50 mt-1">Format: mins:price or mins:price:discountPrice. Omit discount for regular price.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-ink/80 mb-1">Overall Discount % (Optional)</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  max="99"
+                  value={newTreatment.discountPercent}
+                  onChange={e => setNewTreatment({...newTreatment, discountPercent: e.target.value})}
+                  className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive"
+                  placeholder="e.g. 20 (applies 20% off all durations)"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink/40">% OFF</span>
+              </div>
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-ink/80 mb-1">Short Description *</label>
@@ -284,8 +353,24 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-ink/60 mb-1 uppercase tracking-widest">Durations & Prices (mins:price)</label>
-                      <input type="text" value={editData.durationOptionsText} onChange={e => setEditData({...editData, durationOptionsText: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive bg-white" placeholder="60:25, 90:35" />
+                      <label className="block text-xs font-medium text-ink/60 mb-1 uppercase tracking-widest">Durations & Prices (mins:price or mins:price:discount)</label>
+                      <input type="text" value={editData.durationOptionsText} onChange={e => setEditData({...editData, durationOptionsText: e.target.value})} className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive bg-white" placeholder="60:25, 90:35 (or 60:25:20)" />
+                      <p className="text-[11px] text-ink/50 mt-1">Format: mins:price or mins:price:discountPrice. Omit discount for regular price.</p>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-ink/60 mb-1 uppercase tracking-widest">Overall Discount % (Optional)</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          max="99"
+                          value={editData.discountPercent ?? ""}
+                          onChange={e => setEditData({...editData, discountPercent: e.target.value})}
+                          className="w-full px-3 py-2 border border-mist rounded-xl focus:outline-none focus:ring-1 focus:ring-olive bg-white"
+                          placeholder="e.g. 20 (applies 20% off all options)"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-ink/40">% OFF</span>
+                      </div>
                     </div>
                     <div className="md:col-span-2">
                       <label className="block text-xs font-medium text-ink/60 mb-1 uppercase tracking-widest">Short Description</label>
@@ -414,12 +499,43 @@ export function TreatmentsManagerClient({ initialTreatments }: { initialTreatmen
                         {!t.active && <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded font-medium">Hidden</span>}
                       </div>
                       <p className="text-sm text-ink/60 font-light mb-2 max-w-xl">{t.shortDescription}</p>
-                      <div className="text-xs text-gold font-medium tracking-widest uppercase flex flex-wrap gap-2">
-                        {t.durationOptions?.map((opt: any, i: number) => (
-                          <span key={i} className="bg-gold/10 px-2.5 py-1 rounded-lg">
-                            {opt.minutes}min · ${opt.price}
+                      <div className="text-xs font-medium flex flex-wrap items-center gap-2">
+                        {t.durationOptions?.map((opt: any, i: number) => {
+                          const priceInfo = calculateDurationPrice(opt, t.discountPercent);
+                          return (
+                            <span
+                              key={i}
+                              className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 ${
+                                priceInfo.hasDiscount
+                                  ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                                  : "bg-gold/10 text-gold"
+                              }`}
+                            >
+                              <span>{opt.minutes}min ·</span>
+                              {priceInfo.hasDiscount ? (
+                                <>
+                                  <span className="line-through text-ink/40 font-normal">
+                                    ${priceInfo.regularPrice}
+                                  </span>
+                                  <span className="font-bold text-emerald-700">
+                                    ${priceInfo.finalPrice}
+                                  </span>
+                                  <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.2 rounded font-bold">
+                                    -{priceInfo.discountPercent}%
+                                  </span>
+                                </>
+                              ) : (
+                                <span>${priceInfo.regularPrice}</span>
+                              )}
+                            </span>
+                          );
+                        })}
+                        {t.discountPercent && (
+                          <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <Tag className="w-3 h-3" />
+                            {t.discountPercent}% OFF
                           </span>
-                        ))}
+                        )}
                       </div>
                     </div>
                   </div>
