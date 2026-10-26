@@ -142,8 +142,8 @@ function getEmailFooter(): string {
             Opening Hours: Daily · 10:00 AM – 10:00 PM
           </p>
           <p style="margin: 0; font-size: 11px; color: #7A776F;">
-            WhatsApp: <a href="https://wa.me/8551770835459" style="color: #C9A84C; text-decoration: none;">+855 17 708 35459</a> &nbsp;·&nbsp;
-            Telegram: <a href="https://t.me/TeukSpaBookingBot" style="color: #C9A84C; text-decoration: none;">@TeukSpaBookingBot</a>
+            WhatsApp: <a href="https://wa.me/85592835459" style="color: #C9A84C; text-decoration: none;">+855 92 835 459</a> &nbsp;·&nbsp;
+            Telegram: <a href="https://t.me/+85570835459" style="color: #C9A84C; text-decoration: none;">+855 70 835 459</a>
           </p>
         </td>
       </tr>
@@ -324,7 +324,7 @@ export function buildAdminAlertEmailHtml(payload: BookingEmailPayload): string {
  */
 export function buildGuestReceivedEmailHtml(payload: BookingEmailPayload): string {
   const totalPrice = (payload.price ?? 0) * (payload.guests || 1);
-  const waConciergeUrl = `https://wa.me/8551770835459?text=Hello%2C%20I%20have%20a%20question%20about%20my%20booking%20${payload.reference}`;
+  const waConciergeUrl = `https://wa.me/85592835459?text=Hello%2C%20I%20have%20a%20question%20about%20my%20booking%20${payload.reference}`;
 
   return `
 <!DOCTYPE html>
@@ -450,7 +450,7 @@ export function buildGuestReceivedEmailHtml(payload: BookingEmailPayload): strin
  */
 export function buildGuestConfirmedEmailHtml(payload: BookingEmailPayload): string {
   const totalPrice = (payload.price ?? 0) * (payload.guests || 1);
-  const waConciergeUrl = `https://wa.me/8551770835459?text=Hello%2C%20regarding%20my%20confirmed%20booking%20${payload.reference}`;
+  const waConciergeUrl = `https://wa.me/85592835459?text=Hello%2C%20regarding%20my%20confirmed%20booking%20${payload.reference}`;
 
   return `
 <!DOCTYPE html>

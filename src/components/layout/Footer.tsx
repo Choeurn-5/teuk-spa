@@ -116,11 +116,16 @@ export function Footer() {
           </h4>
 
           {/* Phone */}
-          <div className="flex items-center gap-2 text-sm text-white/80 font-light">
-            <Phone className="w-4 h-4 text-[#C9A84C] shrink-0" strokeWidth={1.75} />
-            <a href="tel:+8551770835459" className="hover:text-[#C9A84C] transition-colors">
-              +855 17 708 354
-            </a>
+          <div className="flex items-start gap-2 text-sm text-white/80 font-light">
+            <Phone className="w-4 h-4 text-[#C9A84C] shrink-0 mt-0.5" strokeWidth={1.75} />
+            <div className="flex flex-col gap-0.5">
+              <a href="tel:+85592835459" className="hover:text-[#C9A84C] transition-colors">
+                092 835 459 <span className="text-[10px] text-white/40">(WhatsApp)</span>
+              </a>
+              <a href="tel:+85570835459" className="hover:text-[#C9A84C] transition-colors">
+                070 835 459 <span className="text-[10px] text-white/40">(Telegram)</span>
+              </a>
+            </div>
           </div>
 
           {/* Email */}

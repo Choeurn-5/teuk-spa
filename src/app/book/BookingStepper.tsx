@@ -410,18 +410,26 @@ export function BookingStepper({ packages, treatments }: { packages: any[], trea
                   </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <div className="flex flex-col sm:flex-row justify-center gap-3">
                   <a
-                    href={`https://wa.me/8551770835459?text=Hello, I just submitted a booking request (${reference}).`}
+                    href={`https://wa.me/85592835459?text=Hello, I just submitted a booking request (${reference}).`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-8 py-3 bg-[#25D366] text-white tracking-widest uppercase text-sm rounded-full hover:opacity-90 transition-opacity flex items-center justify-center"
+                    className="px-6 py-3 bg-[#25D366] text-white tracking-widest uppercase text-xs font-semibold rounded-full hover:opacity-90 transition-opacity flex items-center justify-center"
                   >
-                    WhatsApp Us Now
+                    WhatsApp (092 835 459)
+                  </a>
+                  <a
+                    href="https://t.me/+85570835459"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-3 bg-[#229ED9] text-white tracking-widest uppercase text-xs font-semibold rounded-full hover:opacity-90 transition-opacity flex items-center justify-center"
+                  >
+                    Telegram (070 835 459)
                   </a>
                   <button 
                     onClick={() => window.location.href = '/'}
-                    className="px-8 py-3 border border-mist text-ink tracking-widest uppercase text-sm rounded-full hover:bg-mist transition-colors"
+                    className="px-6 py-3 border border-mist text-ink tracking-widest uppercase text-xs font-semibold rounded-full hover:bg-mist transition-colors"
                   >
                     Return Home
                   </button>

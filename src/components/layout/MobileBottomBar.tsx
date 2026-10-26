@@ -15,7 +15,7 @@ export function MobileBottomBar() {
     <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#161813]/95 backdrop-blur-lg border-t border-[#C9A84C]/25 shadow-[0_-8px_20px_rgba(0,0,0,0.3)] lg:hidden">
       <div className="flex items-center justify-around h-16 px-2 pb-safe">
         <a 
-          href="tel:+8551770835459" 
+          href="tel:+85592835459" 
           className="flex flex-col items-center justify-center flex-1 h-full text-white/70 hover:text-[#C9A84C] transition-colors"
         >
           <Phone className="w-4 h-4 mb-1 text-[#C9A84C]" strokeWidth={1.5} />
@@ -23,7 +23,7 @@ export function MobileBottomBar() {
         </a>
         
         <a 
-          href="https://wa.me/8551770835459" 
+          href="https://wa.me/85592835459" 
           target="_blank"
           rel="noopener noreferrer"
           className="flex flex-col items-center justify-center flex-1 h-full text-white/70 hover:text-[#C9A84C] transition-colors"

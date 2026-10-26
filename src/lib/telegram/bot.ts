@@ -107,7 +107,7 @@ export async function sendGuestBookingConfirmation(data: BookingAlertPayload): P
     `🚗 <b>Google Maps:</b> <a href="https://maps.google.com/?q=Teuk+Massage+Spa+Siem+Reap">Open in Maps</a>`,
     `━━━━━━━━━━━━━━━━━━━━━━━━`,
     `🍵 Complimentary warm herbal foot soak & organic herbal tea will be served upon your arrival.`,
-    `💬 Need to adjust your time? Reply directly here or message us on WhatsApp: +855 17 708 35459.`,
+    `💬 Need to adjust your time? Reply directly here or message us on WhatsApp: +855 92 835 459 (or Telegram: +855 70 835 459).`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -292,7 +292,7 @@ export async function sendGuestBookingCancellation(
       : `Your reservation <code>${escapeHtml(data.reference)}</code> for <b>${escapeHtml(data.serviceName)}</b> on <b>${data.date} at ${data.time}</b> has been cancelled.`,
     ``,
     `🍵 We warmly invite you to select another date or contact our front desk directly:`,
-    `💬 WhatsApp: +855 17 708 35459`,
+    `💬 WhatsApp: +855 92 835 459 | Telegram: +855 70 835 459`,
     `🌿 You can book a new ritual anytime by tapping the <b>"Book Ritual"</b> button below.`,
   ].join("\n");
 

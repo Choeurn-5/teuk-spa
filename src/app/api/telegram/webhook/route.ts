@@ -143,8 +143,12 @@ export async function POST(req: NextRequest) {
               ],
               [
                 {
-                  text: "💬 Chat with Reception",
-                  url: "https://wa.me/8551770835459",
+                  text: "💬 WhatsApp (092 835 459)",
+                  url: "https://wa.me/85592835459",
+                },
+                {
+                  text: "✈️ Direct Telegram",
+                  url: "https://t.me/+85570835459",
                 },
               ],
             ],

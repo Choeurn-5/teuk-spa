@@ -104,8 +104,8 @@ export async function generateBookingPdfBuffer(data: BookingInvoiceData): Promis
         .font("Helvetica")
         .text("Street 08 (Near Pub Street & Old Market)", 45, startY + 28)
         .text("Siem Reap, Kingdom of Cambodia", 45, startY + 41)
-        .text("WhatsApp / Phone: +855 17 708 35459", 45, startY + 54)
-        .text("Telegram Concierge: @TeukSpaBookingBot", 45, startY + 67);
+        .text("WhatsApp: +855 92 835 459", 45, startY + 54)
+        .text("Telegram: +855 70 835 459", 45, startY + 67);
 
       // Right Column: Guest Information
       doc

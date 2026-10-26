@@ -314,7 +314,7 @@ export default async function PackagesPage() {
 
           {/* gold WhatsApp CTA */}
           <Link
-            href="https://wa.me/85512345678"
+            href="https://wa.me/85592835459"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 bg-[#C9A84C] hover:bg-[#b8953e] text-[#FAF7F2] text-sm tracking-[0.15em] uppercase font-medium px-8 py-4 rounded-full transition-colors duration-300 shadow-lg hover:shadow-xl group"

@@ -104,9 +104,9 @@ export function Navbar() {
                 </div>
 
                 {/* Concierge & WhatsApp */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   <a
-                    href="https://wa.me/8551770835459"
+                    href="https://wa.me/85592835459"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 hover:text-[#C9A84C] transition-colors"
@@ -115,14 +115,23 @@ export function Navbar() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C9A84C] opacity-75" />
                       <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#C9A84C]" />
                     </span>
-                    <span>Concierge</span>
+                    <span>WhatsApp</span>
                   </a>
                   <span className="text-white/30">|</span>
                   <a
-                    href="tel:+8551770835459"
+                    href="https://t.me/+85570835459"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="hover:text-[#C9A84C] transition-colors"
                   >
-                    +855 17 708 354 59
+                    Telegram
+                  </a>
+                  <span className="text-white/30">|</span>
+                  <a
+                    href="tel:+85592835459"
+                    className="hover:text-[#C9A84C] transition-colors"
+                  >
+                    092 835 459
                   </a>
                 </div>
               </div>
@@ -309,7 +318,7 @@ export function Navbar() {
               <div className="p-6 sm:p-8 bg-[#161813] border-t border-[#C9A84C]/20 space-y-6">
                 <div className="grid grid-cols-2 gap-3">
                   <a
-                    href="tel:+8551770835459"
+                    href="tel:+85592835459"
                     className="flex items-center justify-center gap-2 py-3 px-3 rounded-xl border border-white/10 hover:border-[#C9A84C]/50 bg-white/[0.02] text-xs uppercase tracking-wider text-white/80 hover:text-[#C9A84C] transition-colors"
                   >
                     <Phone className="w-3.5 h-3.5 text-[#C9A84C]" />
@@ -317,7 +326,7 @@ export function Navbar() {
                   </a>
 
                   <a
-                    href="https://wa.me/8551770835459"
+                    href="https://wa.me/85592835459"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 py-3 px-3 rounded-xl border border-white/10 hover:border-[#C9A84C]/50 bg-white/[0.02] text-xs uppercase tracking-wider text-white/80 hover:text-[#C9A84C] transition-colors"

@@ -94,11 +94,13 @@ export default async function ContactPage() {
   const settings = await getSiteSettings()
 
   // Derive contact values with graceful fallbacks
-  const address   = settings?.address   || 'Phum Treang, Sangkat Svay Dangkum, Siem Reap, Cambodia'
+  const address   = settings?.address   || 'Pakambor St, Mondul 1, Svaydangkum, Siem Reap, Cambodia'
   const hours     = settings?.hours     || 'Daily · 10:00 AM – 10:00 PM'
-  const phone     = settings?.phone     || '+855 12 345 678'
-  const email     = settings?.email     || 'hello@teukmassage.com'
-  const waNumber  = phone.replace(/\D/g, '')
+  const phonePrimary = '092 835 459'
+  const phoneSecondary = '070 835 459'
+  const email     = settings?.email     || 'info@teukmassageandspa.com'
+  const waNumber  = '85592835459'
+  const tgNumber  = '85570835459'
 
   const contactSlides: HeroSlideItem[] = [
     {
@@ -240,13 +242,45 @@ export default async function ContactPage() {
                       className="font-sans text-xs uppercase tracking-[0.18em] font-semibold mb-1"
                       style={{ color: '#C9A84C' }}
                     >
-                      WhatsApp
+                      WhatsApp &amp; Phone
                     </p>
-                    <p className="font-sans text-sm leading-relaxed" style={{ color: '#2C2C2C' }}>
-                      {phone}
+                    <p className="font-sans text-sm font-medium leading-relaxed" style={{ color: '#2C2C2C' }}>
+                      {phonePrimary}
                     </p>
                     <p className="font-sans text-xs mt-0.5" style={{ color: '#7A8C6E' }}>
                       Tap to open WhatsApp
+                    </p>
+                  </div>
+                </a>
+              </FadeIn>
+
+              {/* Direct Telegram */}
+              <FadeIn delay={0.33} direction="left">
+                <a
+                  href={`https://t.me/+${tgNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-5 p-5 rounded-2xl transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 block"
+                  style={{ backgroundColor: '#FAF7F2', border: '1px solid #E8E4DC' }}
+                >
+                  <div
+                    className="flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 8px rgba(74,82,64,0.12)' }}
+                  >
+                    <PhoneIcon className="w-5 h-5" style={{ color: '#4A5240' }} />
+                  </div>
+                  <div className="min-w-0">
+                    <p
+                      className="font-sans text-xs uppercase tracking-[0.18em] font-semibold mb-1"
+                      style={{ color: '#C9A84C' }}
+                    >
+                      Direct Telegram &amp; Phone
+                    </p>
+                    <p className="font-sans text-sm font-medium leading-relaxed" style={{ color: '#2C2C2C' }}>
+                      {phoneSecondary}
+                    </p>
+                    <p className="font-sans text-xs mt-0.5" style={{ color: '#7A8C6E' }}>
+                      Tap to message on Telegram
                     </p>
                   </div>
                 </a>
@@ -282,41 +316,41 @@ export default async function ContactPage() {
 
             {/* Action Buttons */}
             <FadeIn delay={0.44} direction="left">
-              <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                {/* WhatsApp Us — olive pill */}
+              <div className="mt-10 flex flex-wrap gap-3">
+                {/* WhatsApp Us */}
                 <a
                   href={`https://wa.me/${waNumber}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-full font-sans text-sm uppercase tracking-[0.16em] font-medium transition-all duration-300 hover:opacity-90 hover:scale-105"
-                  style={{ backgroundColor: '#4A5240', color: '#FAF7F2' }}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-sans text-xs uppercase tracking-[0.16em] font-medium transition-all duration-300 hover:opacity-90 hover:scale-105"
+                  style={{ backgroundColor: '#25D366', color: '#FAF7F2' }}
                 >
-                  <PhoneIcon className="w-4 h-4" />
-                  WhatsApp Us
+                  <PhoneIcon className="w-3.5 h-3.5" />
+                  WhatsApp
                 </a>
 
-                {/* Call Now — ghost */}
+                {/* Direct Telegram */}
                 <a
-                  href={`tel:${phone}`}
-                  className="inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-full font-sans text-sm uppercase tracking-[0.16em] font-medium transition-all duration-300 hover:bg-olive/10"
+                  href={`https://t.me/+${tgNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-sans text-xs uppercase tracking-[0.16em] font-medium transition-all duration-300 hover:opacity-90 hover:scale-105"
+                  style={{ backgroundColor: '#229ED9', color: '#FAF7F2' }}
+                >
+                  <PhoneIcon className="w-3.5 h-3.5" />
+                  Telegram
+                </a>
+
+                {/* Call Now */}
+                <a
+                  href={`tel:${phonePrimary}`}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-sans text-xs uppercase tracking-[0.16em] font-medium transition-all duration-300 hover:bg-olive/10"
                   style={{
                     border: '1.5px solid #4A5240',
                     color: '#4A5240',
                   }}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.75}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="w-4 h-4"
-                    aria-hidden="true"
-                  >
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
+                  <PhoneIcon className="w-3.5 h-3.5" />
                   Call Now
                 </a>
               </div>

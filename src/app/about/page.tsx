@@ -19,7 +19,7 @@ export default async function AboutPage() {
     /* getSiteSettings unavailable — fallback values used below */
   }
 
-  const phone   = siteSettings?.phone   ?? "+855 12 345 678";
+  const phone   = siteSettings?.phone   ?? "092 835 459";
   const address = siteSettings?.address ?? "Wat Bo Road, Sala Kamreuk, Siem Reap, Cambodia";
   const hours   = siteSettings?.hours   ?? "Daily 10:00 AM – 10:00 PM";
 
@@ -406,15 +406,26 @@ export default async function AboutPage() {
                         className="text-xs tracking-widest uppercase text-[#FAF7F2]/50 mb-1"
                         style={{ fontFamily: "'Jost', sans-serif" }}
                       >
-                        Phone
+                        Phone &amp; Direct Messaging
                       </p>
-                      <a
-                        href={`tel:${phone.replace(/\s/g, "")}`}
-                        className="text-[#FAF7F2]/80 text-sm hover:text-[#C9A84C] transition-colors"
-                        style={{ fontFamily: "'Jost', sans-serif" }}
-                      >
-                        {phone}
-                      </a>
+                      <div className="flex flex-col gap-1">
+                        <a
+                          href="tel:+85592835459"
+                          className="text-[#FAF7F2]/80 text-sm hover:text-[#C9A84C] transition-colors"
+                          style={{ fontFamily: "'Jost', sans-serif" }}
+                        >
+                          +855 92 835 459 <span className="text-[#C9A84C] text-xs font-normal">(WhatsApp)</span>
+                        </a>
+                        <a
+                          href="https://t.me/+85570835459"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#FAF7F2]/80 text-sm hover:text-[#C9A84C] transition-colors"
+                          style={{ fontFamily: "'Jost', sans-serif" }}
+                        >
+                          +855 70 835 459 <span className="text-[#C9A84C] text-xs font-normal">(Telegram)</span>
+                        </a>
+                      </div>
                     </div>
                   </div>
 

@@ -95,21 +95,21 @@ export default async function GiftVouchersPage() {
           {/* Inquiries Action Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="https://t.me/TeukSpaBookingBot"
+              href="https://t.me/+85570835459"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-[#4A5240] text-[#FAF7F2] text-sm tracking-wider uppercase font-medium hover:bg-[#C9A84C] transition-all duration-300 shadow-md shadow-[#4A5240]/15"
             >
               <Send className="w-4 h-4" />
-              <span>Inquire via Telegram</span>
+              <span>Inquire via Telegram (070 835 459)</span>
             </a>
 
             <a
-              href="tel:01770835459"
+              href="tel:+85592835459"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white border border-[#4A5240]/30 text-[#4A5240] text-sm tracking-wider uppercase font-medium hover:border-[#C9A84C] hover:text-[#C9A84C] transition-all duration-300"
             >
               <Phone className="w-4 h-4" />
-              <span>Call Reception</span>
+              <span>Call Reception (092 835 459)</span>
             </a>
 
             <Link
